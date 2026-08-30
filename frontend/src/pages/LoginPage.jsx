@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { SignIn } from '@clerk/clerk-react';
 import { isClerkConfigured } from '../context/ClerkWrapper';
 import { useAuth } from '../context/AuthContext';
-import { Bot, Sparkles, Key, Mail, Lock, ArrowRight, AlertCircle, ExternalLink } from 'lucide-react';
+import { Bot, Sparkles, Key, Mail, Lock, ArrowRight, AlertCircle, ExternalLink, Download } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -55,6 +55,19 @@ export default function LoginPage() {
       {/* Background ambient glow effects */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/15 rounded-full blur-[140px] pointer-events-none"></div>
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-purple-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+      {/* Top Right Extension Download */}
+      <div className="absolute top-6 right-6 z-20">
+        <a
+          href="/downloads/lifeops-ai-chrome-extension.zip"
+          download="lifeops-ai-chrome-extension.zip"
+          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-semibold border border-slate-700/60 shadow-lg shadow-black/40 transition-all group"
+          title="Download LifeOps AI Chrome Extension (v1.0.0)"
+        >
+          <Download className="w-3.5 h-3.5 text-indigo-400 group-hover:animate-bounce" />
+          <span>Add Chrome Extension</span>
+        </a>
+      </div>
 
       {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md z-10 text-center space-y-3 mb-6">

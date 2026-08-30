@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeOps AI</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L14.4 8.6L21.5 9.3L16.2 14.1L17.7 21.1L12 17.5L6.3 21.1L7.8 14.1L2.5 9.3L9.6 8.6L12 2Z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">LifeOps AI</span>
+        <span class="brand-subtitle">Browser Agent</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="statusBadge" class="status-badge offline">
+        <span class="pulse-dot"></span>
+        <span id="statusText">Checking...</span>
+      </div>
+      <button id="openSidepanelBtn" class="icon-btn" title="Open Full Side Panel">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <line x1="15" y1="3" x2="15" y2="21"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Body Content -->
+  <main class="main-container">
+    <!-- Offline Banner (Shown when 127.0.0.1:8765 is not reachable) -->
+    <div id="offlineBanner" class="offline-banner" style="display: none;">
+      <h4>⚠️ Local Agent Offline</h4>
+      <p>Start your local Python server to enable AI processing:</p>
+      <code>start_server.bat</code>
+    </div>
+
+    <!-- Active Tab Context Card -->
+    <div class="context-card">
+      <div class="context-info">
+        <div class="context-label">Active Webpage</div>
+        <div id="activePageTitle" class="context-title">Loading current tab...</div>
+      </div>
+    </div>
+
+    <!-- Quick Action Cards -->
+    <div class="actions-grid">
+      <div id="analyzePageCard" class="action-card primary">
+        <div class="action-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="16" y1="13" x2="8" y2="13"/>
+            <line x1="16" y1="17" x2="8" y2="17"/>
+            <polyline points="10 9 9 9 8 9"/>
+          </svg>
+        </div>
+        <span class="action-title">Analyze Page</span>
+      </div>
+
+      <div id="seeScreenCard" class="action-card vision">
+        <div class="action-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <span class="action-title">See My Screen</span>
+      </div>
+
+      <div id="summarizePdfCard" class="action-card pdf">
+        <div class="action-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <path d="M9 15h6"/>
+            <path d="M9 11h6"/>
+          </svg>
+        </div>
+        <span class="action-title">Summarize PDF</span>
+      </div>
+    </div>
+
+    <!-- Quick Chips -->
+    <div class="prompt-chips">
+      <button class="chip" data-prompt="Summarize this page in 5 key takeaways">📌 Summarize</button>
+      <button class="chip" data-prompt="Explain this page in simple words for a beginner">🌱 Explain Simply</button>
+      <button class="chip" data-prompt="What are the most important points and facts?">💡 Key Points</button>
+      <button class="chip" data-prompt="What should I do or click on this page?">🎯 What to Click</button>
+    </div>
+
+    <!-- Response Container -->
+    <div id="responseArea" class="response-area">
+      <div id="emptyState" class="response-empty">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="color: var(--accent-primary);">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+        <p>Ask anything about this page or click an action above.</p>
+      </div>
+
+      <div id="loadingState" class="loading-state" style="display: none;">
+        <div class="spinner"></div>
+        <span id="loadingText" style="font-size: 12px; color: var(--text-muted);">Analyzing with local Groq AI...</span>
+      </div>
+
+      <div id="outputState" style="display: none;">
+        <div class="response-header">
+          <span id="responseBadge" class="response-badge">Analysis</span>
+          <button id="copyBtn" class="icon-btn" title="Copy Response">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+        </div>
+        <div id="responseContent" class="response-content"></div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Input Footer -->
+  <footer class="input-area">
+    <input type="text" id="userInput" class="chat-input" placeholder="Ask anything about this page...">
+    <button id="sendBtn" class="send-btn" title="Send Question">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="22" y1="2" x2="11" y2="13"/>
+        <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

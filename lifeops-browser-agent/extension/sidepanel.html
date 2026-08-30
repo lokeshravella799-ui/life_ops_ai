@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LifeOps AI Side Companion</title>
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      width: 100%;
+      height: 100vh;
+      max-height: 100vh;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L14.4 8.6L21.5 9.3L16.2 14.1L17.7 21.1L12 17.5L6.3 21.1L7.8 14.1L2.5 9.3L9.6 8.6L12 2Z"/>
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">LifeOps AI</span>
+        <span class="brand-subtitle">Side Companion</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="statusBadge" class="status-badge offline">
+        <span class="pulse-dot"></span>
+        <span id="statusText">ONLINE</span>
+      </div>
+      <button id="clearChatBtn" class="icon-btn" title="Clear Conversation">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="3 6 5 6 21 6"></polyline>
+          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          <line x1="10" y1="11" x2="10" y2="17"></line>
+          <line x1="14" y1="11" x2="14" y2="17"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Active Page Context Card -->
+  <div class="context-card-container">
+    <div class="context-card-main">
+      <div class="context-icon-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      </div>
+      <div class="context-text-stack">
+        <span id="activePageDomain" class="context-domain-title">Tracking Active Tab</span>
+        <span class="context-domain-sub">Live page context connected</span>
+      </div>
+      <button id="refreshContextBtn" class="icon-btn-plain" title="Sync Current Tab">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Chat History Stream -->
+  <div id="chatHistory" class="chat-history-container">
+    <div class="chat-bubble assistant">
+      <div class="ai-card-header">
+        <div class="ai-card-title-group">
+          <span class="sparkle-icon">✦</span>
+          <span class="ai-card-title">LifeOps Intelligence</span>
+        </div>
+      </div>
+      <p class="ai-card-intro">I have live context of your active tab. Ask anything, request code explanations, or select any action below.</p>
+    </div>
+  </div>
+
+  <!-- Quick Action Toolbar (3 Cards in a Row) -->
+  <div class="action-cards-row">
+    <button id="spAnalyzePageBtn" class="action-pill-btn">
+      <div class="pill-icon doc">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+        </svg>
+      </div>
+      <div class="pill-content">
+        <span class="pill-title">Page Summary</span>
+        <span class="pill-sub">Summarize this page</span>
+      </div>
+    </button>
+
+    <button id="spSeeScreenBtn" class="action-pill-btn">
+      <div class="pill-icon cam">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 12c-1.1 0-2 .9-2 2s.9 2 2 2 2-.9 2-2-.9-2-2-2zm0-4c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6-2.69-6-6-6zm-8 4c0-4.42 3.58-8 8-8s8 3.58 8 8-3.58 8-8 8-8-3.58-8-8zm16-7H4C2.9 5 2 5.9 2 7v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H4V7h16v10z"/>
+        </svg>
+      </div>
+      <div class="pill-content">
+        <span class="pill-title">See Screen</span>
+        <span class="pill-sub">Analyze screen</span>
+      </div>
+    </button>
+
+    <button id="spExplainSimplyBtn" class="action-pill-btn">
+      <div class="pill-icon spark">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+        </svg>
+      </div>
+      <div class="pill-content">
+        <span class="pill-title">Explain Simply</span>
+        <span class="pill-sub">Simplify this page</span>
+      </div>
+    </button>
+  </div>
+
+  <!-- Input Footer (Modern AI Command Bar) -->
+  <footer class="command-bar-footer">
+    <div class="command-bar-container">
+      <div class="command-sparkle-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 2L14.4 8.6L21.5 9.3L16.2 14.1L17.7 21.1L12 17.5L6.3 21.1L7.8 14.1L2.5 9.3L9.6 8.6L12 2Z"/>
+        </svg>
+      </div>
+      <input type="text" id="spUserInput" class="command-input" placeholder="Ask about this webpage...">
+      <button id="spSendBtn" class="command-send-btn" title="Send Message">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </div>
+    <div class="footer-disclaimer">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <polyline points="9 12 11 14 15 10"/>
+      </svg>
+      <span>Responses may not always be 100% accurate. • LifeOps AI</span>
+    </div>
+  </footer>
+
+  <script src="sidepanel.js"></script>
+</body>
+</html>

@@ -16,7 +16,8 @@ import {
   Menu,
   X,
   ChevronRight,
-  ShieldCheck
+  ShieldCheck,
+  Download
 } from 'lucide-react';
 
 export default function AppLayout({ children }) {
@@ -156,16 +157,35 @@ export default function AppLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
+            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Multi-Agent Engine Online</span>
             </div>
+
+            <a
+              href="/downloads/lifeops-ai-chrome-extension.zip"
+              download="lifeops-ai-chrome-extension.zip"
+              id="downloadChromeExtensionBtn"
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:via-purple-500 hover:to-indigo-500 text-white text-xs font-semibold shadow-md shadow-indigo-600/20 hover:shadow-indigo-600/40 border border-indigo-400/30 transition-all duration-200 group"
+              title="Download LifeOps AI Chrome Extension & Local Agent Package (v1.0.0)"
+            >
+              <Download className="w-3.5 h-3.5 text-indigo-200 group-hover:animate-bounce" />
+              <span>Add Chrome Extension</span>
+            </a>
           </div>
         </header>
 
         {/* Mobile Dropdown Nav */}
         {mobileMenuOpen && (
           <div className="md:hidden border-b border-slate-800 bg-[#0b101d] px-4 py-3 space-y-1 z-30">
+            <a
+              href="/downloads/lifeops-ai-chrome-extension.zip"
+              download="lifeops-ai-chrome-extension.zip"
+              className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-semibold text-indigo-300 bg-indigo-600/20 border border-indigo-500/30 mb-2"
+            >
+              <Download className="w-4 h-4 text-indigo-400" />
+              <span>Add Chrome Extension</span>
+            </a>
             {navItems.map(item => (
               <Link
                 key={item.path}

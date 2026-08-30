@@ -28,7 +28,17 @@ Thumbs.db
 .vscode/
 .idea/
 
+# Python & Virtualenv
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+lifeops-browser-agent/server/.env
+
 # Scratch & Temporary
 scratch/
 tmp/
 backend/storage/artifacts/
+
