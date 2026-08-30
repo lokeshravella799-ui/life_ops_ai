@@ -37,7 +37,7 @@ async function executePdfGenerator(input, context = {}) {
 
   return new Promise((resolve, reject) => {
     try {
-      const doc = new PDFDocument({ margin: 50, size: 'A4' });
+      const doc = new PDFDocument({ margin: 50, size: 'A4', bufferPages: true });
       const chunks = [];
 
       doc.on('data', chunk => chunks.push(chunk));
@@ -81,74 +81,82 @@ async function executePdfGenerator(input, context = {}) {
       doc.fontSize(9).fillColor('#6366f1').text(`LIFEOPS AI  •  ${category.toUpperCase()} BLUEPRINT`, 50, 58, { characterSpacing: 1 });
 
       // Document Title
-      doc.fontSize(22).fillColor('#0f172a').font('Helvetica-Bold').text(title, 50, 75);
+      doc.fontSize(20).fillColor('#0f172a').font('Helvetica-Bold').text(title, 50, 75, { width: 495 });
       
       if (subtitle) {
-        doc.fontSize(11).fillColor('#64748b').font('Helvetica').text(subtitle, 50, 105);
+        doc.fontSize(10).fillColor('#64748b').font('Helvetica').text(subtitle, 50, doc.y + 4, { width: 495 });
       }
 
-      let yPos = subtitle ? 130 : 115;
+      let yPos = doc.y + 12;
 
       // Executive Summary Box
       if (summary) {
-        doc.rect(50, yPos, 495, 60).fill('#f8fafc');
-        doc.rect(50, yPos, 4, 60).fill('#818cf8');
-        doc.fontSize(9).fillColor('#4338ca').font('Helvetica-Bold').text('EXECUTIVE OBJECTIVE & STRATEGY', 65, yPos + 10);
-        doc.fontSize(10).fillColor('#334155').font('Helvetica').text(summary, 65, yPos + 26, { width: 465, lineGap: 3 });
-        yPos += 75;
+        const sumHeight = Math.max(50, doc.heightOfString(summary, { width: 465, lineGap: 2 }) + 26);
+        doc.rect(50, yPos, 495, sumHeight).fill('#f8fafc');
+        doc.rect(50, yPos, 4, sumHeight).fill('#818cf8');
+        doc.fontSize(8.5).fillColor('#4338ca').font('Helvetica-Bold').text('EXECUTIVE OBJECTIVE & STRATEGY', 65, yPos + 8);
+        doc.fontSize(9.5).fillColor('#334155').font('Helvetica').text(summary, 65, yPos + 22, { width: 465, lineGap: 2 });
+        yPos += sumHeight + 15;
       }
 
       // Sections
       for (const section of sections) {
         if (yPos > 680) {
           doc.addPage();
-          yPos = 50;
+          doc.rect(50, 45, 495, 2).fill('#6366f1');
+          yPos = 58;
         }
 
-        doc.fontSize(13).fillColor('#1e293b').font('Helvetica-Bold').text(section.heading, 50, yPos);
-        yPos += 20;
+        doc.fontSize(12).fillColor('#1e293b').font('Helvetica-Bold').text(section.heading, 50, yPos);
+        yPos += 18;
 
         if (section.content) {
-          doc.fontSize(10).fillColor('#475569').font('Helvetica').text(section.content, 50, yPos, { width: 495, lineGap: 3 });
-          yPos += doc.heightOfString(section.content, { width: 495, lineGap: 3 }) + 10;
+          doc.fontSize(9.5).fillColor('#475569').font('Helvetica').text(section.content, 50, yPos, { width: 495, lineGap: 2 });
+          yPos += doc.heightOfString(section.content, { width: 495, lineGap: 2 }) + 8;
         }
 
         if (section.items && section.items.length > 0) {
           for (const item of section.items) {
             if (yPos > 720) {
               doc.addPage();
-              yPos = 50;
+              doc.rect(50, 45, 495, 2).fill('#6366f1');
+              yPos = 58;
             }
-            doc.fontSize(9).fillColor('#6366f1').text('▪', 55, yPos);
-            doc.fontSize(10).fillColor('#334155').font('Helvetica').text(item, 70, yPos, { width: 475 });
-            yPos += 18;
+            doc.fontSize(8.5).fillColor('#6366f1').text('▪', 55, yPos);
+            doc.fontSize(9).fillColor('#334155').font('Helvetica').text(item, 70, yPos, { width: 475 });
+            yPos += 16;
           }
-          yPos += 8;
+          yPos += 6;
         }
 
         if (section.table && section.table.length > 0) {
           for (const row of section.table) {
-            if (yPos > 720) {
+            if (yPos > 730) {
               doc.addPage();
-              yPos = 50;
+              doc.rect(50, 45, 495, 2).fill('#6366f1');
+              yPos = 58;
             }
-            doc.rect(50, yPos, 495, 24).fill('#f1f5f9');
-            doc.fontSize(9).fillColor('#0f172a').font('Helvetica-Bold').text(row.col1, 60, yPos + 6, { width: 100 });
-            doc.fontSize(9).fillColor('#334155').font('Helvetica').text(row.col2, 170, yPos + 6, { width: 240 });
+            doc.rect(50, yPos, 495, 20).fill('#f8fafc');
+            doc.fontSize(8.5).fillColor('#0f172a').font('Helvetica-Bold').text(row.col1, 58, yPos + 5, { width: 70 });
+            doc.fontSize(8.5).fillColor('#334155').font('Helvetica').text(row.col2, 135, yPos + 5, { width: 260, ellipsis: true });
             if (row.col3) {
-              doc.fontSize(8).fillColor('#6366f1').font('Helvetica-Bold').text(row.col3, 420, yPos + 6, { width: 110, align: 'right' });
+              doc.fontSize(7.5).fillColor('#4f46e5').font('Helvetica-Bold').text(row.col3, 400, yPos + 5, { width: 135, align: 'right' });
             }
-            yPos += 28;
+            yPos += 22;
           }
-          yPos += 10;
+          yPos += 8;
         }
 
-        yPos += 10;
+        yPos += 8;
       }
 
-      // Footer
-      const footerText = footerNotes || 'Generated by LifeOps AI Autonomous Execution Fleet. Verified for constraint adherence and completeness.';
-      doc.fontSize(8).fillColor('#94a3b8').text(footerText, 50, 780, { align: 'center', width: 495 });
+      // Add page numbering across all pages
+      const range = doc.bufferedPageRange();
+      for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+        const footerText = footerNotes || `LifeOps AI Autonomous Execution Blueprint • Page ${i + 1} of ${range.count}`;
+        doc.fontSize(7.5).fillColor('#94a3b8').text(footerText, 50, 792, { align: 'center', width: 495 });
+      }
 
       doc.end();
     } catch (err) {

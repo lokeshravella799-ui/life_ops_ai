@@ -4,10 +4,10 @@ const { successResponse, errorResponse } = require('../utils/responseFormatter')
 class TaskController {
   async getTasks(req, res, next) {
     try {
-      const { goalId, workflowId, status, priority } = req.query;
+      const { goalId, goal_id, workflowId, workflow_id, status, priority } = req.query;
       const tasks = await db.getTasks(req.user.id, {
-        goal_id: goalId,
-        workflow_id: workflowId,
+        goal_id: goalId || goal_id,
+        workflow_id: workflowId || workflow_id,
         status,
         priority
       });
@@ -33,22 +33,38 @@ class TaskController {
 
   async createTask(req, res, next) {
     try {
-      const { title, description, goalId, workflowId, priority, dayNumber, estimatedMinutes, dueDate, notes } = req.body;
+      const {
+        title,
+        description,
+        goalId,
+        goal_id,
+        workflowId,
+        workflow_id,
+        priority,
+        dayNumber,
+        day_number,
+        estimatedMinutes,
+        estimated_minutes,
+        dueDate,
+        due_date,
+        notes
+      } = req.body;
+
       if (!title || title.trim().length === 0) {
         return errorResponse(res, 'Task title is required', 'VALIDATION_ERROR', 400);
       }
 
       const created = await db.createTasksBulk([{
         user_id: req.user.id,
-        goal_id: goalId || null,
-        workflow_id: workflowId || null,
+        goal_id: goalId || goal_id || null,
+        workflow_id: workflowId || workflow_id || null,
         title: title.trim(),
-        description: description || '',
+        description: (description || '').trim(),
         priority: priority || 'MEDIUM',
         status: 'TODO',
-        day_number: dayNumber || 1,
-        estimated_minutes: estimatedMinutes || 60,
-        due_date: dueDate || null,
+        day_number: Number(dayNumber || day_number) || 1,
+        estimated_minutes: Number(estimatedMinutes || estimated_minutes) || 60,
+        due_date: dueDate || due_date || null,
         notes: notes || ''
       }]);
 

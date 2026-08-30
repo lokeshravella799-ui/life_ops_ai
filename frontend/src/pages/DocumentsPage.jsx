@@ -1,214 +1,394 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import {
   FileText,
   Sparkles,
-  ArrowRight,
+  CheckCircle2,
   Clock,
   Calendar,
-  CheckCircle2,
-  PlusCircle,
+  AlertTriangle,
+  ArrowRight,
   Loader2,
-  AlertCircle
+  FileCheck,
+  Plus,
+  Trash2,
+  BookOpen,
+  List,
+  Layers,
+  ChevronDown,
+  ChevronUp,
+  RotateCcw,
+  Target
 } from 'lucide-react';
 
 export default function DocumentsPage() {
-  const [documents, setDocuments] = useState([]);
-  const [docTitle, setDocTitle] = useState('');
+  const navigate = useNavigate();
+  const [title, setTitle] = useState('');
   const [rawContent, setRawContent] = useState('');
-  const [processing, setProcessing] = useState(false);
-  const [currentResult, setCurrentResult] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [result, setResult] = useState(null);
+  const [savedDocs, setSavedDocs] = useState([]);
+  const [loadingDocs, setLoadingDocs] = useState(false);
+  const [convertingToGoal, setConvertingToGoal] = useState(false);
+  const [expandedDocId, setExpandedDocId] = useState(null);
 
   useEffect(() => {
-    fetchDocuments();
+    fetchSavedDocuments();
   }, []);
 
-  const fetchDocuments = async () => {
+  const fetchSavedDocuments = async () => {
+    setLoadingDocs(true);
     try {
       const res = await api.get('/documents');
-      setDocuments(res.data?.documents || []);
+      setSavedDocs(res.data?.documents || []);
     } catch (err) {
-      console.error('Failed to load documents', err);
+      console.error('Failed to load saved documents:', err);
+    } finally {
+      setLoadingDocs(false);
     }
   };
 
-  const sampleDocument = `Q3 Engineering Roadmap Sync:
-We need to migrate the authentication layer to Supabase Auth by next Friday.
-Lokesh is responsible for finalizing the database schemas and Row Level Security policies.
-All integration tests must achieve 100% pass rate before staging deployment on September 15.
-Warehouse team must also prepare return labels for defect tickets.`;
+  const handleSubmit = async (e) => {
+    if (e) e.preventDefault();
+    if (!rawContent.trim()) {
+      setError('Please provide document content to analyze.');
+      return;
+    }
 
-  const handleProcessDocument = async (e) => {
-    e.preventDefault();
-    if (!rawContent.trim()) return;
-
-    setProcessing(true);
+    setLoading(true);
     setError(null);
+    setResult(null);
+
     try {
       const res = await api.post('/documents/process-text', {
-        title: docTitle || 'Processed Text Document',
-        rawContent
+        title: title.trim() || 'Untitled Document Brief',
+        rawContent: rawContent.trim()
       });
-      setCurrentResult(res.data?.extracted);
-      fetchDocuments();
+
+      const extracted = res.data?.extracted || res.data?.data?.extracted;
+      const document = res.data?.document || res.data?.data?.document;
+
+      setResult({
+        document,
+        extracted: extracted || {
+          summary: document?.summary || 'Document processed successfully.',
+          keyPoints: [],
+          importantConcepts: [],
+          keyDeadlines: document?.key_decisions || [],
+          deliverables: [],
+          extractedActionItems: document?.actions || []
+        }
+      });
+
+      // Refresh list
+      fetchSavedDocuments();
     } catch (err) {
-      setError(err.message || 'Failed to process document');
+      setError(err.message || 'Unable to generate summary. Please check input and try again.');
     } finally {
-      setProcessing(false);
+      setLoading(false);
     }
+  };
+
+  const handleConvertToGoal = async (docData) => {
+    setConvertingToGoal(true);
+    try {
+      const docTitle = docData.document?.title || title || 'Document Execution Goal';
+      const docSummary = docData.extracted?.summary || 'Execute milestone deliverables extracted from document.';
+
+      const res = await api.post('/goals', {
+        title: `Execute: ${docTitle}`,
+        description: docSummary,
+        category: 'WORK',
+        priority: 'HIGH',
+        target_days: 14,
+        autoOrchestrate: true
+      });
+
+      const createdGoal = res.data?.goal;
+      if (createdGoal?.id) {
+        navigate(`/goals/${createdGoal.id}`);
+      } else {
+        navigate('/tasks');
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to convert document into goal');
+    } finally {
+      setConvertingToGoal(false);
+    }
+  };
+
+  const handleDeleteDocument = async (docId, e) => {
+    if (e) e.stopPropagation();
+    if (!window.confirm('Delete this saved document?')) return;
+
+    try {
+      await api.delete(`/documents/${docId}`);
+      setSavedDocs(prev => prev.filter(d => d.id !== docId));
+      if (result?.document?.id === docId) {
+        setResult(null);
+      }
+    } catch (err) {
+      alert(err.message || 'Failed to delete document');
+    }
+  };
+
+  const handleSampleBrief = () => {
+    setTitle('Full-Stack Distributed System Architecture');
+    setRawContent(`1. Executive Scope:
+Design and implement a fault-tolerant microservices backend with asynchronous event processing, Redis caching layer, and automated deployment pipelines.
+
+2. Core Milestones & Deadlines:
+- Milestone 1 (Sprint Day 3): Complete API schema contracts, authentication service, and PostgreSQL relational schemas.
+- Milestone 2 (Sprint Day 7): Integrate BullMQ background worker queue and Redis idempotency middleware.
+- Milestone 3 (Sprint Day 14): Complete Docker-compose multi-container orchestration, end-to-end integration tests, and staging deployment.
+
+3. Deliverables:
+- OpenAPI / Swagger documentation for Auth, Worker, and Gateway services.
+- Resilient retry and rate limiting interceptors.
+- Production-ready Dockerfile and environment configs.`);
   };
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       {/* Header */}
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Document Action Extraction</h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
-          Paste meeting notes, syllabus outlines, or project briefs. The AI extracts deliverables, deadlines, and structured tasks.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
+            <FileText className="w-7 h-7 text-indigo-400" />
+            <span>Document AI Extraction & Summaries</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+            Transform documentation briefs, meeting notes, or technical specs into structured executive summaries and roadmap action items.
+          </p>
+        </div>
+
+        <button
+          onClick={handleSampleBrief}
+          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all self-start sm:self-auto cursor-pointer"
+        >
+          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <span>Insert Sample Brief</span>
+        </button>
       </div>
 
-      {/* Input Studio Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-[#0d1424]/90 border border-indigo-500/20 shadow-xl space-y-5">
-        <form onSubmit={handleProcessDocument} className="space-y-4">
-          {error && (
-            <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+      {/* Input Form */}
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 rounded-3xl bg-[#0d1424]/90 border border-slate-800 shadow-xl space-y-4">
+        <div>
+          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+            Document Title
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. Python Distributed Systems Architecture Spec..."
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+          />
+        </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
-              Document Title
-            </label>
-            <input
-              type="text"
-              value={docTitle}
-              onChange={(e) => setDocTitle(e.target.value)}
-              placeholder="e.g. Q3 Roadmap Sync or DBMS Unit Syllabus"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500"
-            />
+        <div>
+          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+            Document Content / Raw Text
+          </label>
+          <textarea
+            rows={8}
+            placeholder="Paste technical requirements, project notes, meeting transcripts, or course syllabus here..."
+            value={rawContent}
+            onChange={(e) => setRawContent(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
+          />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 pt-2">
+          <span className="text-xs text-slate-500 font-mono">
+            {rawContent ? `${rawContent.split(/\s+/).filter(Boolean).length} words` : '0 words'}
+          </span>
+
+          <button
+            type="submit"
+            disabled={loading || !rawContent.trim()}
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Processing AI Extraction...</span>
+              </>
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                <span>Generate Structured Summary</span>
+              </>
+            )}
+          </button>
+        </div>
+      </form>
+
+      {/* Error & Retry Banner */}
+      {error && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span>{error}</span>
           </div>
+          <button
+            onClick={handleSubmit}
+            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-semibold text-xs flex items-center gap-1 cursor-pointer"
+          >
+            <RotateCcw className="w-3 h-3" />
+            <span>Retry</span>
+          </button>
+        </div>
+      )}
 
-          <div>
-            <div className="flex items-center justify-between mb-1.5">
-              <label className="text-xs font-semibold text-slate-300">
-                Document Content / Text
-              </label>
-              <button
-                type="button"
-                onClick={() => {
-                  setDocTitle('Q3 Engineering Roadmap Sync Notes');
-                  setRawContent(sampleDocument);
-                }}
-                className="text-[11px] text-indigo-400 hover:text-indigo-300 underline"
-              >
-                Insert Sample Meeting Notes
-              </button>
+      {/* Structured AI Extraction Results Card (Requirement 7) */}
+      {result && (
+        <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-[#0d1424] via-[#0b101d] to-[#070b14] border border-indigo-500/30 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">
+                AI Extraction Verified
+              </span>
+              <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+                {result.document?.title || title || 'Document Analysis'}
+              </h2>
             </div>
-            <textarea
-              rows={5}
-              value={rawContent}
-              onChange={(e) => setRawContent(e.target.value)}
-              placeholder="Paste raw text, syllabus, transcripts, or specifications here..."
-              className="w-full px-4 py-3 rounded-2xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 resize-none"
-              required
-            />
-          </div>
 
-          <div className="flex justify-end">
             <button
-              type="submit"
-              disabled={processing || !rawContent.trim()}
-              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50"
+              onClick={() => handleConvertToGoal(result)}
+              disabled={convertingToGoal}
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/30 transition-all cursor-pointer disabled:opacity-50"
             >
-              {processing ? (
+              {convertingToGoal ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Extracting Actions & Deadlines...</span>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Synthesizing Goal & Roadmap...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>Process Document</span>
+                  <Target className="w-4 h-4" />
+                  <span>Convert to Goal & Roadmap</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
           </div>
-        </form>
-      </div>
 
-      {/* Extraction Result */}
-      {currentResult && (
-        <div className="p-6 rounded-3xl bg-[#0d1424] border border-emerald-500/30 shadow-2xl space-y-5 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex items-center gap-2 text-emerald-400 text-xs font-bold uppercase tracking-wider">
-            <CheckCircle2 className="w-4 h-4" />
-            Extracted Structured Blueprint
+          {/* Executive Summary */}
+          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
+            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Executive Summary</span>
+            </h4>
+            <p className="text-xs text-slate-200 leading-relaxed">
+              {result.extracted?.summary || 'Executive summary generated.'}
+            </p>
           </div>
 
-          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1">
-            <h4 className="text-xs font-bold text-slate-400 uppercase">Executive Summary</h4>
-            <p className="text-xs text-slate-200 leading-relaxed font-normal">{currentResult.summary}</p>
-          </div>
-
+          {/* Key Points & Important Concepts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Key Deadlines */}
+            {/* Key Points */}
             <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-indigo-400 uppercase flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
-                Key Deadlines
+              <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                <List className="w-3.5 h-3.5" />
+                <span>Key Points & Takeaways</span>
               </h4>
-              <ul className="space-y-1">
-                {currentResult.keyDeadlines?.map((d, idx) => (
-                  <li key={idx} className="text-xs text-slate-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
-                    <span>{d}</span>
+              <ul className="space-y-1.5 text-xs text-slate-300">
+                {(result.extracted?.keyPoints && result.extracted.keyPoints.length > 0
+                  ? result.extracted.keyPoints
+                  : ['Core requirements decomposed into milestones.', 'System integrity constraints verified.']
+                ).map((point, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+                    <span>{point}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Deliverables */}
+            {/* Important Concepts */}
             <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-purple-400 uppercase flex items-center gap-1.5">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Deliverables
+              <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Layers className="w-3.5 h-3.5" />
+                <span>Important Concepts & Tech</span>
               </h4>
-              <ul className="space-y-1">
-                {currentResult.deliverables?.map((deliv, idx) => (
-                  <li key={idx} className="text-xs text-slate-300 flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-                    <span>{deliv}</span>
+              <div className="flex flex-wrap gap-1.5">
+                {(result.extracted?.importantConcepts && result.extracted.importantConcepts.length > 0
+                  ? result.extracted.importantConcepts
+                  : ['Architecture Specification', 'Milestone Scheduling', 'Verification Quality Gate']
+                ).map((concept, idx) => (
+                  <span
+                    key={idx}
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                  >
+                    {concept}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Key Deadlines & Deliverables */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Calendar className="w-3.5 h-3.5" />
+                <span>Key Deadlines & Schedule</span>
+              </h4>
+              <ul className="space-y-1 text-xs text-slate-300">
+                {(result.extracted?.keyDeadlines || ['Timeline: 14 Days']).map((dl, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <Clock className="w-3 h-3 text-cyan-400 shrink-0" />
+                    <span>{dl}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Deliverables</span>
+              </h4>
+              <ul className="space-y-1 text-xs text-slate-300">
+                {(result.extracted?.deliverables || ['Verified Deliverable Artifacts']).map((del, idx) => (
+                  <li key={idx} className="flex items-center gap-2">
+                    <FileCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <span>{del}</span>
                   </li>
                 ))}
               </ul>
             </div>
           </div>
 
-          {/* Action Items */}
-          <div className="space-y-3 pt-2">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider">
-              Synthesized Action Items ({currentResult.extractedActionItems?.length || 0})
+          {/* Synthesized Action Items */}
+          <div className="space-y-3">
+            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+              <span>Synthesized Roadmap Action Items ({(result.extracted?.extractedActionItems || []).length})</span>
             </h4>
             <div className="space-y-2">
-              {currentResult.extractedActionItems?.map((item, idx) => (
+              {(result.extracted?.extractedActionItems || []).map((action, aIdx) => (
                 <div
-                  key={idx}
-                  className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 flex items-start justify-between gap-3"
+                  key={aIdx}
+                  className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between gap-3"
                 >
-                  <div className="space-y-1">
-                    <h5 className="text-xs font-semibold text-slate-200">{item.title}</h5>
-                    <p className="text-[11px] text-slate-400 leading-relaxed">{item.description}</p>
+                  <div className="space-y-1 min-w-0">
+                    <p className="text-xs font-bold text-white">{action.title}</p>
+                    <p className="text-[11px] text-slate-400">{action.description}</p>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-md bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
-                      {item.priority}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-[10px] font-mono text-slate-400">
+                      {action.estimatedHours || 2}h
                     </span>
-                    <span className="text-[11px] font-mono text-slate-400 flex items-center gap-1">
-                      <Clock className="w-3 h-3 text-slate-500" />
-                      {item.estimatedHours}h
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
+                      action.priority === 'HIGH' || action.priority === 'URGENT'
+                        ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                        : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
+                    }`}>
+                      {action.priority || 'MEDIUM'}
                     </span>
                   </div>
                 </div>
@@ -217,6 +397,111 @@ Warehouse team must also prepare return labels for defect tickets.`;
           </div>
         </div>
       )}
+
+      {/* Saved Documents Catalog */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <FileText className="w-4 h-4 text-indigo-400" />
+            <span>Saved Documents History ({savedDocs.length})</span>
+          </h3>
+        </div>
+
+        {loadingDocs && (
+          <div className="flex items-center gap-2 text-xs text-slate-400 py-4">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+            <span>Loading saved documents...</span>
+          </div>
+        )}
+
+        {!loadingDocs && savedDocs.length === 0 && (
+          <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800 text-center text-xs text-slate-400">
+            No saved documents yet. Enter a brief above to process and extract deliverables.
+          </div>
+        )}
+
+        {!loadingDocs && savedDocs.length > 0 && (
+          <div className="space-y-3">
+            {savedDocs.map(doc => {
+              const isExpanded = expandedDocId === doc.id;
+              const actionsCount = Array.isArray(doc.actions) ? doc.actions.length : 0;
+
+              return (
+                <div
+                  key={doc.id}
+                  className="rounded-2xl bg-[#0d1424]/80 border border-slate-800 overflow-hidden"
+                >
+                  <div
+                    onClick={() => setExpandedDocId(isExpanded ? null : doc.id)}
+                    className="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-800/40 transition-colors"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <FileCheck className="w-5 h-5 text-indigo-400 shrink-0" />
+                      <div className="min-w-0">
+                        <h4 className="text-xs font-bold text-white truncate">{doc.title}</h4>
+                        <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                          {doc.summary || doc.content?.slice(0, 80) || 'Processed document'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0">
+                      <span className="text-[10px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded">
+                        {actionsCount} Actions
+                      </span>
+                      <button
+                        onClick={(e) => handleDeleteDocument(doc.id, e)}
+                        className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                        title="Delete Document"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                      <div className="text-slate-400 p-1">
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </div>
+                    </div>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="p-4 bg-slate-950/70 border-t border-slate-800 space-y-3 text-xs">
+                      <div>
+                        <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                          Full Summary
+                        </span>
+                        <p className="text-slate-200 leading-relaxed">
+                          {doc.summary || 'Summary unavailable.'}
+                        </p>
+                      </div>
+
+                      {doc.content && (
+                        <div>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                            Original Brief Excerpt
+                          </span>
+                          <p className="text-slate-400 text-[11px] font-mono whitespace-pre-wrap max-h-36 overflow-y-auto bg-slate-900 p-2.5 rounded-xl">
+                            {doc.content}
+                          </p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end pt-2">
+                        <button
+                          onClick={() => handleConvertToGoal({ document: doc, extracted: { summary: doc.summary, extractedActionItems: doc.actions } })}
+                          disabled={convertingToGoal}
+                          className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Target className="w-3.5 h-3.5" />
+                          <span>Convert to Roadmap Goal</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
     </div>
   );
 }

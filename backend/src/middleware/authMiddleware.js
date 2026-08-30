@@ -3,7 +3,12 @@ const { errorResponse } = require('../utils/responseFormatter');
 
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+  let token = authHeader && authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
+
+  // Allow token passed in query parameter (e.g. ?token=...) for browser file downloads
+  if (!token && req.query?.token) {
+    token = req.query.token;
+  }
 
   if (!token) {
     return errorResponse(res, 'Authentication token required', 'UNAUTHORIZED', 401);

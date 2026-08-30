@@ -27,8 +27,11 @@ import {
   Search,
   Check,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Target,
+  PlusCircle
 } from 'lucide-react';
+
 
 const LOCAL_STORAGE_CHATS_KEY = 'lifeops_chat_conversations_v2';
 const LOCAL_STORAGE_ACTIVE_ID_KEY = 'lifeops_active_chat_id_v2';
@@ -68,6 +71,73 @@ export default function HomePage() {
   const [currentStage, setCurrentStage] = useState(0);
   const [progress, setProgress] = useState(0);
   const [expandedDay, setExpandedDay] = useState(1);
+
+  // Add Goal from AI Response State
+  const [isAddGoalModalOpen, setIsAddGoalModalOpen] = useState(false);
+  const [goalFromAi, setGoalFromAi] = useState({
+    title: '',
+    description: '',
+    category: 'CAREER',
+    priority: 'HIGH',
+    targetDays: 14,
+    dailyHours: 2
+  });
+  const [isCreatingGoalFromAi, setIsCreatingGoalFromAi] = useState(false);
+  const [createdGoalToast, setCreatedGoalToast] = useState(null);
+
+  const handleOpenAddGoalFromAi = (aiMessage) => {
+    const rawText = aiMessage.content || aiMessage.message || '';
+    const cleanLines = rawText.split('\n').map(l => l.replace(/^[#*\-—\s>]+/, '').trim()).filter(Boolean);
+    const candidateTitle = cleanLines[0] || 'New Objective';
+    const suggestedTitle = candidateTitle.length > 5 && candidateTitle.length < 60 ? candidateTitle : 'Master Objective';
+    const suggestedDesc = rawText.slice(0, 500);
+
+    setGoalFromAi({
+      title: suggestedTitle,
+      description: suggestedDesc,
+      category: 'CAREER',
+      priority: 'HIGH',
+      targetDays: 14,
+      dailyHours: 2
+    });
+    setIsAddGoalModalOpen(true);
+  };
+
+  const handleSaveGoalFromAi = async (e) => {
+    e.preventDefault();
+    if (!goalFromAi.title.trim() || isCreatingGoalFromAi) return;
+
+    setIsCreatingGoalFromAi(true);
+    try {
+      const res = await api.post('/goals', {
+        title: goalFromAi.title.trim(),
+        description: goalFromAi.description.trim(),
+        category: goalFromAi.category,
+        priority: goalFromAi.priority,
+        target_days: Number(goalFromAi.targetDays) || 7,
+        daily_hours: Number(goalFromAi.dailyHours) || 2,
+        autoOrchestrate: true
+      });
+
+      const newGoal = res.data?.goal;
+      const newWorkflow = res.data?.workflow;
+      setCreatedGoalToast({
+        goal: newGoal,
+        workflowId: newWorkflow?.id || res.data?.workflowId || newGoal?.id
+      });
+      setIsAddGoalModalOpen(false);
+
+      // Auto-hide toast after 8 seconds
+      setTimeout(() => {
+        setCreatedGoalToast(null);
+      }, 8000);
+    } catch (err) {
+      alert(err.message || 'Failed to create goal from AI response');
+    } finally {
+      setIsCreatingGoalFromAi(false);
+    }
+  };
+
 
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
@@ -298,11 +368,18 @@ export default function HomePage() {
       persistConversation(finalMsgs, activeWorkflow, chatData.title);
     } catch (err) {
       console.error('Chat error:', err);
-      const errorMessage = err?.message || err?.error?.message || 'AI service is temporarily unavailable. Please check your connection or try again.';
+      const errorMessage = err?.message || err?.error?.message || 'Connection interrupted. Please click Retry below to re-send.';
       const errorAiMsg = {
         role: 'assistant',
         mode: 'EXPLANATION',
-        message: `⚠️ **AI Service Notice**\n\n${errorMessage}`
+        message: `⚠️ **Connection Issue**\n\n${errorMessage}`,
+        suggestedActions: [
+          {
+            type: 'RETRY',
+            label: '🔄 Retry Request',
+            prompt: textToSend
+          }
+        ]
       };
       const finalMsgs = [...nextMessages, errorAiMsg];
       setMessages(finalMsgs);
@@ -361,13 +438,18 @@ export default function HomePage() {
       const workflowData = res?.data?.data || res?.data || res;
       setActiveWorkflow(workflowData);
 
+      // Filter strictly to the single latest verified PDF blueprint artifact
+      const singlePdfArtifacts = (workflowData.artifacts || [])
+        .filter(a => (a.artifact_type === 'PDF' || (a.filename && a.filename.endsWith('.pdf'))))
+        .slice(-1);
+
       const completedMsgs = [
         ...baseMessages,
         {
           role: 'assistant',
           mode: 'PLAN',
-          message: `### ✨ Autonomous Fleet Execution Complete!\n\n**Objective**: ${workflowData.summary || goalText}\n- **Verified Score**: ${workflowData.verification?.score || 95}/100\n- **Tasks Generated**: ${workflowData.tasks?.length || 0} milestone tasks\n- **Physical Artifacts**: ${workflowData.artifacts?.length || 0} generated files\n\n*Review your verified milestone schedule below or open the full workflow detail.*`,
-          artifacts: workflowData.artifacts || [],
+          message: `### ✨ Autonomous Fleet Execution Complete!\n\n**Objective**: ${workflowData.summary || goalText}\n- **Verified Score**: ${workflowData.verification?.score || 95}/100\n- **Tasks Generated**: ${workflowData.tasks?.length || 0} milestone tasks\n- **Physical Artifacts**: ${singlePdfArtifacts.length} verified PDF blueprint\n\n*Review your verified milestone schedule below or click the download button below to get the full blueprint PDF.*`,
+          artifacts: singlePdfArtifacts,
           suggestedActions: [
             {
               type: 'CUSTOM_PROMPT',
@@ -583,6 +665,7 @@ export default function HomePage() {
                   key={idx}
                   message={msg}
                   onActionClick={handleActionClick}
+                  onAddGoal={handleOpenAddGoalFromAi}
                 />
               ))}
 
@@ -738,6 +821,181 @@ export default function HomePage() {
           </div>
         </div>
       </div>
+
+      {/* Convert AI Response to Goal Modal */}
+      {isAddGoalModalOpen && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-[#0E121E] border border-white/[0.08] rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                  <Target className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white">Add Goal from AI Response</h3>
+                  <p className="text-xs text-slate-400">Review & customize your objective, timeline, and priority</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsAddGoalModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/50 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveGoalFromAi} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Goal Title
+                </label>
+                <input
+                  type="text"
+                  value={goalFromAi.title}
+                  onChange={(e) => setGoalFromAi(prev => ({ ...prev, title: e.target.value }))}
+                  placeholder="e.g. Master Full Stack Development"
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  required
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Category
+                  </label>
+                  <select
+                    value={goalFromAi.category}
+                    onChange={(e) => setGoalFromAi(prev => ({ ...prev, category: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  >
+                    <option value="CAREER">Career & Tech</option>
+                    <option value="STUDY">Study & Academic</option>
+                    <option value="PROJECT">Coding Project</option>
+                    <option value="HEALTH">Health & Fitness</option>
+                    <option value="FINANCE">Finance</option>
+                    <option value="PERSONAL">Personal Growth</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Priority
+                  </label>
+                  <select
+                    value={goalFromAi.priority}
+                    onChange={(e) => setGoalFromAi(prev => ({ ...prev, priority: e.target.value }))}
+                    className="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  >
+                    <option value="HIGH">🔴 High Priority</option>
+                    <option value="MEDIUM">🟡 Medium Priority</option>
+                    <option value="LOW">🟢 Low Priority</option>
+                    <option value="URGENT">⚡ Urgent</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Target Timeline (Days)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="365"
+                    value={goalFromAi.targetDays}
+                    onChange={(e) => setGoalFromAi(prev => ({ ...prev, targetDays: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                    Daily Commitment (Hours)
+                  </label>
+                  <input
+                    type="number"
+                    min="0.5"
+                    max="16"
+                    step="0.5"
+                    value={goalFromAi.dailyHours}
+                    onChange={(e) => setGoalFromAi(prev => ({ ...prev, dailyHours: e.target.value }))}
+                    className="w-full px-4 py-2 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  Extracted Context & Description
+                </label>
+                <textarea
+                  rows={3}
+                  value={goalFromAi.description}
+                  onChange={(e) => setGoalFromAi(prev => ({ ...prev, description: e.target.value }))}
+                  placeholder="Key guidance points and objectives..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500 resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
+                <button
+                  type="button"
+                  onClick={() => setIsAddGoalModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isCreatingGoalFromAi || !goalFromAi.title.trim()}
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all disabled:opacity-50 cursor-pointer"
+                >
+                  {isCreatingGoalFromAi ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Creating Goal & Roadmap...</span>
+                    </>
+                  ) : (
+                    <>
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>Save Goal & Generate Roadmap</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Goal Created Floating Toast */}
+      {createdGoalToast && (
+        <div className="fixed bottom-24 right-6 z-50 p-4 rounded-2xl bg-[#0d1424] border border-emerald-500/40 shadow-2xl shadow-emerald-950/40 flex items-center gap-3.5 animate-in slide-in-from-bottom-5 duration-300">
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
+            <CheckCircle2 className="w-5 h-5" />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white">Goal Created & Added to Roadmap!</p>
+            <p className="text-[11px] text-slate-400 truncate max-w-xs">{createdGoalToast.goal?.title}</p>
+          </div>
+          <button
+            onClick={() => navigate(`/goals/${createdGoalToast.goal?.id || createdGoalToast.workflowId}`)}
+            className="ml-2 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-1 transition-all cursor-pointer"
+          >
+            <span>View Roadmap</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+          <button
+            onClick={() => setCreatedGoalToast(null)}
+            className="p-1 text-slate-500 hover:text-white"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+

@@ -7,5 +7,6 @@ router.use(authenticateToken);
 
 router.post('/process-text', documentController.processText);
 router.get('/', documentController.getDocuments);
+router.delete('/:id', documentController.deleteDocument);
 
 module.exports = router;

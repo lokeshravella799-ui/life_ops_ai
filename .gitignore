@@ -34,8 +34,9 @@ __pycache__/
 *.pyo
 .venv/
 venv/
-env/
 lifeops-browser-agent/server/.env
+lifeops-ai-voice-agent/.env
+lifeops-ai-voice-agent/.venv/
 
 # Scratch & Temporary
 scratch/

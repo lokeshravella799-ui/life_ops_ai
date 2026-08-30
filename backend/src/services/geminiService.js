@@ -36,7 +36,11 @@ class GeminiService {
       const parts = cleaned.split(/<\/think>/i);
       cleaned = parts.length > 1 ? parts.slice(1).join('') : cleaned.replace(/<think>[\s\S]*/gi, '');
     }
-    return cleaned.trim();
+    cleaned = cleaned.trim();
+    if (!cleaned && text.trim()) {
+      return text.replace(/<\/?think>/gi, '').trim();
+    }
+    return cleaned;
   }
 
   /**
@@ -102,11 +106,7 @@ class GeminiService {
     const activeProvider = this.customModelClient ? 'MOCK' : (hasGroq ? 'GROQ' : (hasGemini ? 'GEMINI' : 'NONE'));
     const effectiveModel = hasGroq ? (modelName || env.GROQ_MODEL || 'qwen/qwen3.6-27b') : (modelName || env.GEMINI_MODEL || 'gemini-1.5-flash');
 
-    console.log(`[DIAGNOSTIC] Calling AI Service for: ${schemaName}`);
-    console.log(`[DIAGNOSTIC] Active Provider: ${activeProvider} | Model: ${effectiveModel}`);
-
     if (activeProvider === 'NONE') {
-      console.log(`[DIAGNOSTIC] Neither GROQ_API_KEY nor GEMINI_API_KEY is configured -> using dynamic domain fallback generator for ${schemaName}.`);
       if (fallbackGenerator) {
         return fallbackGenerator();
       }
@@ -136,7 +136,13 @@ class GeminiService {
           const response = await result.response;
           rawText = response.text();
         } else if (hasGroq && groqClient) {
-          const groqModels = [effectiveModel, 'qwen/qwen3.6-27b', 'groq/compound-mini', 'openai/gpt-oss-20b'].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
+          const groqModels = [
+            effectiveModel,
+            'openai/gpt-oss-120b',
+            'openai/gpt-oss-20b',
+            'groq/compound-mini'
+          ].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
+
           let groqSuccess = false;
           let groqErr = null;
 
@@ -159,7 +165,6 @@ class GeminiService {
                 temperature
               };
 
-              // Only enable strict json_object response_format on non-reasoning models
               if (!isReasoningModel) {
                 completionOptions.response_format = { type: 'json_object' };
               }
@@ -168,9 +173,11 @@ class GeminiService {
               const content = completion.choices[0]?.message?.content?.trim();
               if (content && content.length > 2) {
                 rawText = this.stripThinkingTags(content);
-                groqSuccess = true;
-                logger.info(`✨ [AIService] Groq model "${m}" responded successfully (${rawText.length} chars).`);
-                break;
+                if (rawText && rawText.length > 2) {
+                  groqSuccess = true;
+                  logger.info(`✨ [AIService] Groq model "${m}" responded successfully (${rawText.length} chars).`);
+                  break;
+                }
               }
             } catch (mErr) {
               groqErr = mErr;
@@ -198,148 +205,128 @@ class GeminiService {
           parsedJson = await this.repairStructuredResponse({
             groqClient,
             geminiModel: this.customModelClient || geminiModel,
-            effectiveModel,
-            hasGroq,
-            malformedText: rawText,
+            brokenText: rawText,
             schemaName,
-            schema
+            systemInstruction
           });
         }
 
-        // 2. Validate with Zod Schema if provided
+        // 2. Validate against Zod schema
         if (schema) {
-          try {
-            const validated = schema.parse(parsedJson);
-            const durationMs = Date.now() - startTime;
-            logger.info(`✅ [AIService] ${schemaName} validated successfully via ${activeProvider} in ${durationMs}ms.`);
-            return validated;
-          } catch (zodErr) {
-            logger.warn(`⚠️ [AIService] Zod validation failed for ${schemaName}. Attempting repair...`);
+          const validation = schema.safeParse(parsedJson);
+          if (!validation.success) {
+            logger.warn(`⚠️ [AIService] Schema validation issues for ${schemaName}: ${JSON.stringify(validation.error.format())}`);
             const repaired = await this.repairStructuredResponse({
               groqClient,
               geminiModel: this.customModelClient || geminiModel,
-              effectiveModel,
-              hasGroq,
-              malformedText: JSON.stringify(parsedJson),
+              brokenText: JSON.stringify(parsedJson),
               schemaName,
-              schema,
-              validationErrors: zodErr.errors
+              systemInstruction,
+              errorContext: JSON.stringify(validation.error.issues)
             });
-            const durationMs = Date.now() - startTime;
-            logger.info(`✅ [AIService] Repaired ${schemaName} validated in ${durationMs}ms.`);
-            return repaired;
+            if (revalidation.success) {
+              parsedJson = revalidation.data;
+            } else if (this.customModelClient) {
+              throw new GeminiError(
+                `Schema validation failed for ${schemaName}: ${JSON.stringify(validation.error.issues)}`,
+                'GEMINI_SCHEMA_VALIDATION_FAILED'
+              );
+            } else if (fallbackGenerator) {
+              logger.warn(`⚠️ [AIService] Using fallback generator for ${schemaName} after schema mismatch.`);
+              return fallbackGenerator();
+            } else {
+              throw new GeminiError(
+                `Schema validation failed for ${schemaName}: ${JSON.stringify(validation.error.issues)}`,
+                'GEMINI_SCHEMA_VALIDATION_FAILED'
+              );
+            }
+          } else {
+            parsedJson = validation.data;
           }
         }
 
+        const duration = Date.now() - startTime;
+        logger.info(`✅ [AIService] ${schemaName} completed successfully in ${duration}ms.`);
         return parsedJson;
       } catch (err) {
         lastError = err;
-        console.error('[DIAGNOSTIC ERROR IN AI CALL]', err.message, err.status, err.stack);
         const classifiedCode = this.classifyError(err);
+        logger.error(`❌ [AIService] Error on attempt ${attempt} for ${schemaName} [${classifiedCode}]: ${this.sanitizeError(err)}`);
 
-        // If it's a schema validation or auth error and maxRetries reached, fallback or fail
-        if (classifiedCode === 'GEMINI_CONFIG_ERROR' || classifiedCode === 'GEMINI_AUTH_ERROR' || classifiedCode === 'GEMINI_SCHEMA_VALIDATION_FAILED') {
-          if (attempt > maxRetries) {
-            if (fallbackGenerator) {
-              logger.warn(`⚠️ [AIService] Request failed with ${classifiedCode}. Returning fallbackGenerator.`);
-              return fallbackGenerator();
-            }
-            throw new GeminiError(
-              this.sanitizeError(err),
-              classifiedCode
-            );
-          }
-        }
-
-        // Retry with backoff if attempts remaining
-        if (attempt <= maxRetries) {
-          const backoffDelay = attempt * 500;
-          logger.warn(`⚠️ [AIService] Request failed with ${classifiedCode}. Retrying in ${backoffDelay}ms...`);
-          await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+        if (classifiedCode === 'GEMINI_RATE_LIMIT') {
+          await new Promise(r => setTimeout(r, 1000 * attempt));
         }
       }
     }
 
-    // All retries exhausted
+    // Dynamic domain fallback if all attempts and providers failed
     if (fallbackGenerator) {
-      logger.warn(`⚠️ [AIService] All API attempts exhausted for ${schemaName}. Using domain fallback.`);
+      logger.warn(`⚠️ [AIService] All providers failed for ${schemaName}. Invoking domain fallback generator.`);
       return fallbackGenerator();
     }
 
     throw new GeminiError(
-      `AI Structured Generation failed after ${maxRetries + 1} attempts: ${this.sanitizeError(lastError)}`,
-      this.classifyError(lastError)
+      `AI Service failed for ${schemaName}: ${this.sanitizeError(lastError)}`,
+      this.classifyError(lastError),
+      lastError
     );
   }
 
   /**
-   * 1-Shot Self-Healing Repair Flow for malformed JSON or Zod validation errors
+   * Helper alias for generateStructuredResponse
    */
-  async repairStructuredResponse({ groqClient, geminiModel, effectiveModel, hasGroq, malformedText, schemaName, schema, validationErrors = null }) {
-    logger.info(`🔧 [AIService] Running 1-shot JSON repair for ${schemaName}...`);
-
-    const repairPrompt = `The previous response failed schema validation or contained malformed JSON.
-SCHEMA NAME: ${schemaName}
-VALIDATION ERRORS: ${validationErrors ? JSON.stringify(validationErrors) : 'Malformed JSON syntax'}
-PREVIOUS MALFORMED TEXT:
-${malformedText}
-
-INSTRUCTION: Fix all syntax errors and schema mismatches. Return strictly valid JSON conforming to the schema. Output JSON ONLY.`;
-
-    try {
-      let repairedText = '';
-      if (hasGroq && groqClient) {
-        const isReasoningModel = (effectiveModel || '').includes('qwen') || (effectiveModel || '').includes('deepseek');
-        const repairOptions = {
-          model: effectiveModel,
-          messages: [{ role: 'user', content: repairPrompt }],
-          temperature: 0.1
-        };
-        if (!isReasoningModel) {
-          repairOptions.response_format = { type: 'json_object' };
-        }
-        const completion = await groqClient.chat.completions.create(repairOptions);
-        repairedText = this.stripThinkingTags(completion.choices[0]?.message?.content || '{}');
-      } else if (geminiModel) {
-        const repairResult = await geminiModel.generateContent({
-          contents: [{ role: 'user', parts: [{ text: repairPrompt }] }],
-          generationConfig: { temperature: 0.1 }
-        });
-        const repairResponse = await repairResult.response;
-        repairedText = this.stripThinkingTags(repairResponse.text());
-      }
-
-      const repairedJson = extractAndParseJSON(repairedText);
-
-      if (schema) {
-        return schema.parse(repairedJson);
-      }
-      return repairedJson;
-    } catch (repairErr) {
-      logger.error(`❌ [AIService] 1-shot repair failed for ${schemaName}: ${this.sanitizeError(repairErr)}`);
-      throw new GeminiError(
-        `Failed to repair malformed AI response for ${schemaName}: ${this.sanitizeError(repairErr)}`,
-        'GEMINI_SCHEMA_VALIDATION_FAILED',
-        { originalText: malformedText.slice(0, 300) }
-      );
-    }
+  async generateStructuredOutput(params) {
+    return this.generateStructuredResponse(params);
   }
 
   /**
-   * Universal Structured Output Alias
+   * 1-shot self-healing JSON repair
    */
-  async generateStructuredOutput(params) {
-    return this.generateStructuredResponse({
-      ...params,
-      schemaName: params.schemaName || params.agentName || 'StructuredOutput'
-    });
+  async repairStructuredResponse({ groqClient, geminiModel, brokenText, schemaName, systemInstruction, errorContext }) {
+    const repairPrompt = `You are a JSON Repair Agent. Fix the malformed text into a single, valid JSON object for schema "${schemaName}".
+${errorContext ? `Errors: ${errorContext}\n` : ''}
+${systemInstruction ? `Schema Goal: ${systemInstruction}\n` : ''}
+
+MALFORMED TEXT TO FIX:
+${brokenText.slice(0, 4000)}
+
+Respond STRICTLY with valid JSON only.`;
+
+    try {
+      if (groqClient) {
+        const repairModels = ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'];
+        for (const rm of repairModels) {
+          try {
+            const completion = await groqClient.chat.completions.create({
+              model: rm,
+              messages: [{ role: 'user', content: repairPrompt }],
+              temperature: 0.1,
+              response_format: { type: 'json_object' }
+            });
+            const text = completion.choices[0]?.message?.content?.trim();
+            if (text) {
+              return extractAndParseJSON(text);
+            }
+          } catch {}
+        }
+      }
+
+      if (geminiModel) {
+        const result = await geminiModel.generateContent({
+          contents: [{ role: 'user', parts: [{ text: repairPrompt }] }],
+          generationConfig: { temperature: 0.1 }
+        });
+        const response = await result.response;
+        return extractAndParseJSON(response.text());
+      }
+    } catch (repairErr) {
+      logger.warn(`⚠️ [AIService] 1-shot repair failed: ${this.sanitizeError(repairErr)}`);
+    }
+
+    return extractAndParseJSON(brokenText);
   }
 }
 
-const defaultInstance = new GeminiService();
-defaultInstance.GeminiService = GeminiService;
-defaultInstance.GeminiError = GeminiError;
-
-module.exports = defaultInstance;
+module.exports = new GeminiService();
 module.exports.GeminiService = GeminiService;
 module.exports.GeminiError = GeminiError;

@@ -10,6 +10,7 @@ router.use(authenticateToken);
 router.post('/', validateBody(createGoalSchema), goalController.createGoal);
 router.get('/', goalController.getGoals);
 router.get('/:id', goalController.getGoalById);
+router.post('/:id/generate-workflow', goalController.generateWorkflow);
 router.patch('/:id', validateBody(updateGoalSchema), goalController.updateGoal);
 router.delete('/:id', goalController.deleteGoal);
 

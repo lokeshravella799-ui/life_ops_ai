@@ -262,19 +262,30 @@ const db = {
 
   // Goals operations
   async createGoal(goalData) {
+    const normalizedGoal = {
+      ...goalData,
+      priority: goalData.priority || 'MEDIUM',
+      category: goalData.category || 'PERSONAL',
+      target_days: goalData.target_days || goalData.targetDays || 7,
+      daily_hours: goalData.daily_hours || goalData.dailyHours || 2,
+      status: goalData.status || 'ACTIVE'
+    };
+
     if (hasSupabaseConfig && supabase) {
       try {
-        const { data, error } = await supabase.from('goals').insert([goalData]).select().single();
+        const { data, error } = await supabase.from('goals').insert([normalizedGoal]).select().single();
         if (error) {
-          if (!isTableMissingError(error)) throw error;
+          if (!isTableMissingError(error)) {
+            console.warn('⚠️ Supabase goals insert error (falling back to memory):', error.message);
+          }
         } else {
           return data;
         }
       } catch (err) {
-        if (!isTableMissingError(err)) throw err;
+        console.warn('⚠️ Supabase goals exception (falling back to memory):', err.message);
       }
     }
-    const goal = { id: uuidv4(), ...goalData, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
+    const goal = { id: uuidv4(), ...normalizedGoal, created_at: new Date().toISOString(), updated_at: new Date().toISOString() };
     memoryDb.goals.push(goal);
     return goal;
   },
@@ -284,16 +295,19 @@ const db = {
       try {
         const { data, error } = await supabase.from('goals').select('*').eq('user_id', userId).order('created_at', { ascending: false });
         if (error) {
-          if (!isTableMissingError(error)) throw error;
-        } else {
-          return data || [];
+          if (!isTableMissingError(error)) {
+            console.warn('⚠️ Supabase goals fetch error (falling back to memory):', error.message);
+          }
+        } else if (data && data.length > 0) {
+          return data;
         }
       } catch (err) {
-        if (!isTableMissingError(err)) throw err;
+        console.warn('⚠️ Supabase goals fetch exception (falling back to memory):', err.message);
       }
     }
     return memoryDb.goals.filter(g => g.user_id === userId).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   },
+
 
   async getGoalById(id, userId) {
     if (hasSupabaseConfig && supabase) {
@@ -761,19 +775,46 @@ const db = {
 
   // Documents operations
   async createDocument(docData) {
+    const normalizedData = {
+      user_id: docData.user_id,
+      title: docData.title || 'Untitled Document',
+      content: docData.content || docData.raw_content || docData.rawContent || '',
+      summary: docData.summary || docData.extracted_data?.summary || '',
+      actions: docData.actions || docData.extracted_data?.extractedActionItems || [],
+      key_decisions: docData.key_decisions || docData.extracted_data?.deliverables || docData.extracted_data?.keyDeadlines || [],
+      metadata: docData.metadata || { extracted: docData.extracted_data || {} }
+    };
+
     if (hasSupabaseConfig && supabase) {
       try {
-        const { data, error } = await supabase.from('documents').insert([docData]).select().single();
+        const { data, error } = await supabase.from('documents').insert([normalizedData]).select().single();
         if (error) {
-          if (!isTableMissingError(error)) throw error;
+          if (!isTableMissingError(error)) {
+            console.warn('⚠️ Supabase documents insert error (falling back to memory):', error.message);
+          }
         } else {
-          return data;
+          return {
+            ...data,
+            raw_content: data.content,
+            extracted_data: data.metadata?.extracted || {
+              summary: data.summary,
+              keyDeadlines: data.key_decisions || [],
+              deliverables: data.key_decisions || [],
+              extractedActionItems: data.actions || []
+            }
+          };
         }
       } catch (err) {
-        if (!isTableMissingError(err)) throw err;
+        console.warn('⚠️ Supabase documents exception (falling back to memory):', err.message);
       }
     }
-    const doc = { id: uuidv4(), ...docData, created_at: new Date().toISOString() };
+    const doc = {
+      id: uuidv4(),
+      ...normalizedData,
+      raw_content: normalizedData.content,
+      extracted_data: normalizedData.metadata?.extracted || {},
+      created_at: new Date().toISOString()
+    };
     memoryDb.documents.push(doc);
     return doc;
   },
@@ -783,16 +824,61 @@ const db = {
       try {
         const { data, error } = await supabase.from('documents').select('*').eq('user_id', userId).order('created_at', { ascending: false });
         if (error) {
-          if (!isTableMissingError(error)) throw error;
-        } else {
-          return data || [];
+          if (!isTableMissingError(error)) {
+            console.warn('⚠️ Supabase documents fetch error (falling back to memory):', error.message);
+          }
+        } else if (data && data.length > 0) {
+          return data.map(d => ({
+            ...d,
+            raw_content: d.content || d.raw_content,
+            extracted_data: d.metadata?.extracted || {
+              summary: d.summary,
+              keyDeadlines: d.key_decisions || [],
+              deliverables: d.key_decisions || [],
+              extractedActionItems: d.actions || []
+            }
+          }));
         }
       } catch (err) {
-        if (!isTableMissingError(err)) throw err;
+        console.warn('⚠️ Supabase documents fetch exception (falling back to memory):', err.message);
       }
     }
-    return memoryDb.documents.filter(d => d.user_id === userId).sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    return memoryDb.documents
+      .filter(d => d.user_id === userId)
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map(d => ({
+        ...d,
+        raw_content: d.content || d.raw_content,
+        extracted_data: d.extracted_data || d.metadata?.extracted || {
+          summary: d.summary,
+          keyDeadlines: d.key_decisions || [],
+          deliverables: d.key_decisions || [],
+          extractedActionItems: d.actions || []
+        }
+      }));
   },
+
+  async deleteDocument(id, userId) {
+    if (hasSupabaseConfig && supabase) {
+      try {
+        const { error } = await supabase.from('documents').delete().eq('id', id).eq('user_id', userId);
+        if (error && !isTableMissingError(error)) {
+          console.warn('⚠️ Supabase documents delete error:', error.message);
+        } else {
+          return true;
+        }
+      } catch (err) {
+        console.warn('⚠️ Supabase documents delete exception:', err.message);
+      }
+    }
+    const idx = memoryDb.documents.findIndex(d => d.id === id && d.user_id === userId);
+    if (idx !== -1) {
+      memoryDb.documents.splice(idx, 1);
+      return true;
+    }
+    return false;
+  },
+
 
   // Tool Executions operations
   async createToolExecution(executionData) {

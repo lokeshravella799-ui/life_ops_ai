@@ -46,16 +46,24 @@ async function getWorkflowById(req, res, next) {
     const { id } = req.params;
     const userId = req.user.id;
 
-    const workflow = await db.getWorkflowById(id, userId);
+    let workflow = await db.getWorkflowById(id, userId);
+    if (!workflow) {
+      // Check if id is a goal_id
+      const workflowsForGoal = (await db.getWorkflowsByUserId(userId)).filter(w => w.goal_id === id);
+      if (workflowsForGoal.length > 0) {
+        workflow = workflowsForGoal[0];
+      }
+    }
+
     if (!workflow) {
       return errorResponse(res, 'Workflow not found', 404, 'WORKFLOW_NOT_FOUND');
     }
 
-    const agents = await db.getWorkflowAgentsByWorkflowId(id);
-    const tasks = await db.getTasks(userId, { workflow_id: id });
-    const revisions = await db.getPlanRevisions(id, userId);
-    const artifacts = await db.getArtifactsByWorkflowId(id, userId);
-    const actions = await db.getActionRequestsByWorkflowId(id, userId);
+    const agents = await db.getWorkflowAgentsByWorkflowId(workflow.id);
+    const tasks = await db.getTasks(userId, { workflow_id: workflow.id });
+    const revisions = await db.getPlanRevisions(workflow.id, userId);
+    const artifacts = await db.getArtifactsByWorkflowId(workflow.id, userId);
+    const actions = await db.getActionRequestsByWorkflowId(workflow.id, userId);
 
     return successResponse(res, {
       workflow,
@@ -69,6 +77,7 @@ async function getWorkflowById(req, res, next) {
     next(err);
   }
 }
+
 
 async function getWorkflows(req, res, next) {
   try {
