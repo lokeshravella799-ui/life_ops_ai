@@ -31,3 +31,4 @@ Thumbs.db
 # Scratch & Temporary
 scratch/
 tmp/
+backend/storage/artifacts/

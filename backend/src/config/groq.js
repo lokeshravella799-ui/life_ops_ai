@@ -1,18 +1,17 @@
 const Groq = require('groq-sdk');
-const dotenv = require('dotenv');
-const path = require('path');
 const env = require('./env');
 
-const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
+const isTest = () => {
+  return process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('--test') || arg.endsWith('.test.js'));
+};
 
 function getApiKey() {
-  if (isTest) return null;
-  dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+  if (isTest()) return null;
   return process.env.GROQ_API_KEY || env.GROQ_API_KEY;
 }
 
 function getGroqClient() {
-  if (isTest) {
+  if (isTest()) {
     return null;
   }
   const apiKey = getApiKey();
@@ -24,5 +23,7 @@ function getGroqClient() {
 
 module.exports = {
   getGroqClient,
-  isGroqConfigured: !isTest && Boolean(getApiKey())
+  get isGroqConfigured() {
+    return !isTest() && Boolean(getApiKey());
+  }
 };

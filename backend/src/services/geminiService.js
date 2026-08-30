@@ -27,6 +27,19 @@ class GeminiService {
   }
 
   /**
+   * Helper to strip reasoning/thinking tags (e.g. <think>...</think>) from output
+   */
+  stripThinkingTags(text) {
+    if (!text) return '';
+    let cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, '');
+    if (cleaned.includes('<think>')) {
+      const parts = cleaned.split(/<\/think>/i);
+      cleaned = parts.length > 1 ? parts.slice(1).join('') : cleaned.replace(/<think>[\s\S]*/gi, '');
+    }
+    return cleaned.trim();
+  }
+
+  /**
    * Helper to sanitize error logs to prevent leaking secrets/keys
    */
   sanitizeError(error) {
@@ -123,13 +136,15 @@ class GeminiService {
           const response = await result.response;
           rawText = response.text();
         } else if (hasGroq && groqClient) {
-          const groqModels = [effectiveModel, 'groq/compound-mini', 'openai/gpt-oss-20b', 'qwen/qwen3.6-27b'].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
+          const groqModels = [effectiveModel, 'qwen/qwen3.6-27b', 'groq/compound-mini', 'openai/gpt-oss-20b'].filter((v, i, a) => Boolean(v) && a.indexOf(v) === i);
           let groqSuccess = false;
           let groqErr = null;
 
           for (const m of groqModels) {
             try {
-              const completion = await groqClient.chat.completions.create({
+              logger.info(`🤖 [AIService] Invoking Groq model "${m}"...`);
+              const isReasoningModel = m.includes('qwen') || m.includes('deepseek') || m.includes('r1');
+              const completionOptions = {
                 model: m,
                 messages: [
                   {
@@ -141,15 +156,25 @@ class GeminiService {
                     content: prompt
                   }
                 ],
-                response_format: { type: 'json_object' },
                 temperature
-              });
-              rawText = completion.choices[0]?.message?.content || '{}';
-              groqSuccess = true;
-              break;
+              };
+
+              // Only enable strict json_object response_format on non-reasoning models
+              if (!isReasoningModel) {
+                completionOptions.response_format = { type: 'json_object' };
+              }
+
+              const completion = await groqClient.chat.completions.create(completionOptions);
+              const content = completion.choices[0]?.message?.content?.trim();
+              if (content && content.length > 2) {
+                rawText = this.stripThinkingTags(content);
+                groqSuccess = true;
+                logger.info(`✨ [AIService] Groq model "${m}" responded successfully (${rawText.length} chars).`);
+                break;
+              }
             } catch (mErr) {
               groqErr = mErr;
-              logger.warn(`⚠️ [AIService] Groq model ${m} failed (${mErr.message}). Trying next fallback model...`);
+              logger.error(`❌ [AIService] Groq model "${m}" execution error: ${this.sanitizeError(mErr)}`);
             }
           }
           if (!groqSuccess && groqErr) {
@@ -161,7 +186,7 @@ class GeminiService {
             generationConfig: { temperature }
           });
           const response = await result.response;
-          rawText = response.text();
+          rawText = this.stripThinkingTags(response.text());
         }
 
         // 1. Extract and Parse JSON
@@ -264,20 +289,24 @@ INSTRUCTION: Fix all syntax errors and schema mismatches. Return strictly valid 
     try {
       let repairedText = '';
       if (hasGroq && groqClient) {
-        const completion = await groqClient.chat.completions.create({
+        const isReasoningModel = (effectiveModel || '').includes('qwen') || (effectiveModel || '').includes('deepseek');
+        const repairOptions = {
           model: effectiveModel,
           messages: [{ role: 'user', content: repairPrompt }],
-          response_format: { type: 'json_object' },
           temperature: 0.1
-        });
-        repairedText = completion.choices[0]?.message?.content || '{}';
+        };
+        if (!isReasoningModel) {
+          repairOptions.response_format = { type: 'json_object' };
+        }
+        const completion = await groqClient.chat.completions.create(repairOptions);
+        repairedText = this.stripThinkingTags(completion.choices[0]?.message?.content || '{}');
       } else if (geminiModel) {
         const repairResult = await geminiModel.generateContent({
           contents: [{ role: 'user', parts: [{ text: repairPrompt }] }],
           generationConfig: { temperature: 0.1 }
         });
         const repairResponse = await repairResult.response;
-        repairedText = repairResponse.text();
+        repairedText = this.stripThinkingTags(repairResponse.text());
       }
 
       const repairedJson = extractAndParseJSON(repairedText);

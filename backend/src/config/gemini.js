@@ -3,19 +3,21 @@ const env = require('./env');
 
 let genAI = null;
 
+const isTest = () => {
+  return process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('--test') || arg.endsWith('.test.js'));
+};
+
 function initializeGemini() {
-  if (!genAI && env.GEMINI_API_KEY) {
-    genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
-    console.log(`✅ Google Gemini API client initialized with default model: ${env.GEMINI_MODEL}`);
+  const apiKey = process.env.GEMINI_API_KEY || env.GEMINI_API_KEY;
+  if (!genAI && apiKey) {
+    genAI = new GoogleGenerativeAI(apiKey);
   }
   return genAI;
 }
 
-const isTest = process.env.NODE_ENV === 'test' || process.argv.some(arg => arg.includes('test'));
-
 function getGeminiModel(customModelName) {
-  if (isTest) return null;
-  const apiKey = ('GEMINI_API_KEY' in process.env) ? process.env.GEMINI_API_KEY : env.GEMINI_API_KEY;
+  if (isTest()) return null;
+  const apiKey = process.env.GEMINI_API_KEY || env.GEMINI_API_KEY;
   if (!apiKey) {
     return null;
   }
@@ -27,5 +29,7 @@ function getGeminiModel(customModelName) {
 module.exports = {
   initializeGemini,
   getGeminiModel,
-  isGeminiConfigured: !isTest && Boolean(('GEMINI_API_KEY' in process.env) ? process.env.GEMINI_API_KEY : env.GEMINI_API_KEY)
+  get isGeminiConfigured() {
+    return !isTest() && Boolean(process.env.GEMINI_API_KEY || env.GEMINI_API_KEY);
+  }
 };

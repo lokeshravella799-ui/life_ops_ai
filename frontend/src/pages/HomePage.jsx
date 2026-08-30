@@ -298,21 +298,13 @@ export default function HomePage() {
       persistConversation(finalMsgs, activeWorkflow, chatData.title);
     } catch (err) {
       console.error('Chat error:', err);
-      const fallbackAiMsg = {
+      const errorMessage = err?.message || err?.error?.message || 'AI service is temporarily unavailable. Please check your connection or try again.';
+      const errorAiMsg = {
         role: 'assistant',
         mode: 'EXPLANATION',
-        message: '### Response\n\nI have received your message: **' + textToSend + '**.\n\n*Feel free to ask follow-up questions or request a full multi-agent roadmap.*',
-        suggestedActions: [
-          {
-            type: 'CREATE_PLAN',
-            label: '📅 Create a 7-Day Plan',
-            prompt: `Create a 7-day milestone plan for: ${textToSend}`,
-            category: 'PERSONAL',
-            targetDays: 7
-          }
-        ]
+        message: `⚠️ **AI Service Notice**\n\n${errorMessage}`
       };
-      const finalMsgs = [...nextMessages, fallbackAiMsg];
+      const finalMsgs = [...nextMessages, errorAiMsg];
       setMessages(finalMsgs);
       persistConversation(finalMsgs, activeWorkflow);
     } finally {
