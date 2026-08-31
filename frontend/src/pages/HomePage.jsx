@@ -499,7 +499,7 @@ export default function HomePage() {
   const activeChat = conversations.find(c => c.id === activeConversationId);
 
   return (
-    <div className="flex h-[calc(100vh-4.5rem)] bg-[#0B0F19] text-slate-100 overflow-hidden relative">
+    <div className="flex h-[calc(100vh-4.5rem)] bg-slate-50 dark:bg-[#0B0F19] text-slate-800 dark:text-slate-100 overflow-hidden relative transition-colors duration-200">
       {/* Sidebar Backdrop for Mobile */}
       {isHistoryOpen && (
         <div 
@@ -509,18 +509,18 @@ export default function HomePage() {
       )}
 
       {/* Conversation History Drawer */}
-      <div className={`fixed md:static inset-y-0 left-0 z-50 md:z-auto w-72 bg-[#0E121E] border-r border-white/[0.06] flex flex-col transition-all duration-300 ${
+      <div className={`fixed md:static inset-y-0 left-0 z-50 md:z-auto w-72 bg-white dark:bg-[#0E121E] border-r border-slate-200 dark:border-white/[0.06] flex flex-col transition-all duration-300 ${
         isHistoryOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0 md:w-72'
       }`}>
         {/* Drawer Header */}
-        <div className="p-4 border-b border-white/[0.06] flex items-center justify-between">
+        <div className="p-4 border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <History className="w-4 h-4 text-indigo-400" />
-            <h2 className="text-sm font-bold text-slate-200">Chat History</h2>
+            <History className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+            <h2 className="text-sm font-bold text-slate-800 dark:text-slate-200">Chat History</h2>
           </div>
           <button
             onClick={() => setIsHistoryOpen(false)}
-            className="md:hidden p-1.5 text-slate-400 hover:text-white rounded-lg"
+            className="md:hidden p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg"
           >
             <X className="w-4 h-4" />
           </button>
@@ -540,13 +540,13 @@ export default function HomePage() {
         {/* Search Input */}
         <div className="px-3 pb-2">
           <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-500" />
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-slate-400 dark:text-slate-500" />
             <input
               type="text"
               value={searchHistoryQuery}
               onChange={(e) => setSearchHistoryQuery(e.target.value)}
               placeholder="Search previous chats..."
-              className="w-full bg-[#151A27] text-slate-200 placeholder-slate-500 text-xs rounded-lg pl-8 pr-3 py-2 border border-white/[0.04] focus:outline-none focus:border-indigo-500/50"
+              className="w-full bg-slate-100 dark:bg-[#151A27] text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 text-xs rounded-lg pl-8 pr-3 py-2 border border-slate-200 dark:border-white/[0.04] focus:outline-none focus:border-indigo-500"
             />
           </div>
         </div>
@@ -554,8 +554,8 @@ export default function HomePage() {
         {/* Conversations List */}
         <div className="flex-1 overflow-y-auto px-2 py-1 space-y-1">
           {filteredConversations.length === 0 ? (
-            <div className="py-12 text-center text-slate-500 text-xs space-y-1">
-              <MessageSquare className="w-6 h-6 mx-auto text-slate-600" />
+            <div className="py-12 text-center text-slate-400 dark:text-slate-500 text-xs space-y-1">
+              <MessageSquare className="w-6 h-6 mx-auto text-slate-300 dark:text-slate-600" />
               <p>No previous conversations</p>
             </div>
           ) : (
@@ -567,19 +567,19 @@ export default function HomePage() {
                   onClick={() => handleSelectConversation(conv)}
                   className={`group relative flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all text-xs ${
                     isActive
-                      ? 'bg-indigo-600/20 border border-indigo-500/40 text-white'
-                      : 'text-slate-300 hover:bg-[#151A27] hover:text-white border border-transparent'
+                      ? 'bg-indigo-50 dark:bg-indigo-600/20 border border-indigo-200 dark:border-indigo-500/40 text-indigo-700 dark:text-white'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[#151A27] hover:text-slate-900 dark:hover:text-white border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-6">
-                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-indigo-400' : 'text-slate-500 group-hover:text-slate-300'}`} />
+                    <MessageSquare className={`w-3.5 h-3.5 shrink-0 ${isActive ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-400 dark:text-slate-500 group-hover:text-slate-600 dark:group-hover:text-slate-300'}`} />
                     <span className="truncate font-medium">{conv.title || 'Untitled Chat'}</span>
                   </div>
 
                   <button
                     onClick={(e) => handleDeleteConversation(conv.id, e)}
                     title="Delete Chat"
-                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-400 transition-opacity"
+                    className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-500 transition-opacity"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -593,25 +593,25 @@ export default function HomePage() {
       {/* Main Chat Interface */}
       <div className="flex-1 flex flex-col h-full overflow-hidden">
         {/* Chat Header Bar */}
-        <div className="px-4 py-3 bg-[#0E121E]/60 border-b border-white/[0.06] flex items-center justify-between">
+        <div className="px-4 py-3 bg-white/80 dark:bg-[#0E121E]/60 border-b border-slate-200 dark:border-white/[0.06] flex items-center justify-between backdrop-blur-sm">
           <div className="flex items-center gap-3">
             <button
               onClick={() => setIsHistoryOpen(prev => !prev)}
-              className="p-1.5 rounded-lg bg-[#151A27] hover:bg-[#1E2538] text-slate-300 hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium border border-white/[0.06]"
+              className="p-1.5 rounded-lg bg-slate-100 dark:bg-[#151A27] hover:bg-slate-200 dark:hover:bg-[#1E2538] text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center gap-1.5 text-xs font-medium border border-slate-200 dark:border-white/[0.06]"
               title="Toggle Chat History"
             >
-              <History className="w-3.5 h-3.5 text-indigo-400" />
+              <History className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
               <span>History ({conversations.length})</span>
             </button>
 
-            <span className="text-xs text-slate-400 truncate max-w-xs font-medium">
+            <span className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs font-medium">
               {activeChat?.title || 'New Chat'}
             </span>
           </div>
 
           <button
             onClick={handleNewChat}
-            className="px-3 py-1.5 rounded-lg bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 text-xs font-semibold flex items-center gap-1.5 border border-indigo-500/30 transition-all cursor-pointer"
+            className="px-3 py-1.5 rounded-lg bg-indigo-50 dark:bg-indigo-600/20 hover:bg-indigo-100 dark:hover:bg-indigo-600/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold flex items-center gap-1.5 border border-indigo-200 dark:border-indigo-500/30 transition-all cursor-pointer"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>New Chat</span>
@@ -630,10 +630,10 @@ export default function HomePage() {
               </div>
 
               <div className="space-y-3">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-slate-900 dark:text-white">
                   What can I help you with today?
                 </h1>
-                <p className="text-slate-400 text-sm md:text-base max-w-lg mx-auto">
+                <p className="text-slate-600 dark:text-slate-400 text-sm md:text-base max-w-lg mx-auto">
                   Ask questions, generate study notes, write code, analyze documents, or request a verified multi-agent milestone plan.
                 </p>
               </div>
@@ -644,15 +644,15 @@ export default function HomePage() {
                   <button
                     key={idx}
                     onClick={() => handleSendMessage(item.prompt)}
-                    className="p-4 rounded-2xl bg-[#131722]/80 hover:bg-[#1A2030] border border-white/[0.06] hover:border-indigo-500/40 transition-all text-left group shadow-lg cursor-pointer"
+                    className="p-4 rounded-2xl bg-white dark:bg-[#131722]/80 hover:bg-slate-50 dark:hover:bg-[#1A2030] border border-slate-200 dark:border-white/[0.06] hover:border-indigo-400 dark:hover:border-indigo-500/40 transition-all text-left group shadow-sm dark:shadow-lg cursor-pointer"
                   >
                     <div className="flex items-center gap-3 mb-1.5">
-                      <div className="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-105 transition-transform">
                         <item.icon className="w-4 h-4" />
                       </div>
-                      <span className="text-sm font-semibold text-slate-200 group-hover:text-white transition-colors">{item.title}</span>
+                      <span className="text-sm font-semibold text-slate-800 dark:text-slate-200 group-hover:text-indigo-600 dark:group-hover:text-white transition-colors">{item.title}</span>
                     </div>
-                    <p className="text-xs text-slate-400 pl-11 line-clamp-1">{item.desc}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 pl-11 line-clamp-1">{item.desc}</p>
                   </button>
                 ))}
               </div>
@@ -771,21 +771,21 @@ export default function HomePage() {
         </div>
 
         {/* Chat Input Bar */}
-        <div className="p-4 md:p-6 bg-[#0B0F19] border-t border-white/[0.06]">
+        <div className="p-4 md:p-6 bg-slate-50/90 dark:bg-[#0B0F19] border-t border-slate-200 dark:border-white/[0.06] transition-colors duration-200">
           <div className="max-w-3xl mx-auto">
             <form
               onSubmit={(e) => {
                 e.preventDefault();
                 handleSendMessage();
               }}
-              className="relative flex items-center rounded-2xl bg-[#131722] border border-white/[0.1] focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/20 shadow-2xl transition-all"
+              className="relative flex items-center rounded-2xl bg-white dark:bg-[#131722] border border-slate-300 dark:border-white/[0.1] focus-within:border-indigo-500/80 focus-within:ring-2 focus-within:ring-indigo-500/20 shadow-md dark:shadow-2xl transition-all"
             >
               {/* New Conversation Button */}
               <button
                 type="button"
                 onClick={handleNewChat}
                 title="New Chat"
-                className="p-3 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                className="p-3 text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
               >
                 <Plus className="w-5 h-5" />
               </button>
@@ -798,7 +798,7 @@ export default function HomePage() {
                 onChange={(e) => setInputMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Ask anything or request a plan (e.g. 'teach me about computers', 'basics of python', or 'Plan a 30-day course')..."
-                className="w-full bg-transparent text-slate-100 placeholder-slate-500 text-sm focus:outline-none resize-none py-3.5 px-2 max-h-32"
+                className="w-full bg-transparent text-slate-800 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-sm focus:outline-none resize-none py-3.5 px-2 max-h-32"
               />
 
               {/* Send Button */}
@@ -808,14 +808,14 @@ export default function HomePage() {
                 className={`p-2.5 mr-2 rounded-xl transition-all shrink-0 ${
                   inputMessage.trim() && !isLoading
                     ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 cursor-pointer'
-                    : 'bg-slate-800 text-slate-600 cursor-not-allowed'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-600 cursor-not-allowed'
                 }`}
               >
                 {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
               </button>
             </form>
 
-            <p className="text-[11px] text-slate-400 text-center mt-2.5">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 text-center mt-2.5">
               LifeOps AI provides conversational intelligence and autonomous multi-agent planning.
             </p>
           </div>

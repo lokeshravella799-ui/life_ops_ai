@@ -55,8 +55,8 @@ export default function ChatMessage({ message, onActionClick, onAddGoal }) {
     <div
       className={`flex gap-3 sm:gap-4 p-4 sm:p-5 rounded-2xl sm:rounded-3xl transition-all ${
         isUser
-          ? 'bg-gradient-to-r from-indigo-900/10 via-purple-900/10 to-transparent border border-indigo-500/15 ml-4 sm:ml-12'
-          : 'bg-[#0b101d]/90 border border-slate-800/80 mr-4 sm:mr-12 shadow-xl shadow-black/20'
+          ? 'bg-gradient-to-r from-indigo-50 dark:from-indigo-900/10 via-purple-50 dark:via-purple-900/10 to-transparent border border-indigo-200 dark:border-indigo-500/15 ml-4 sm:ml-12'
+          : 'bg-white dark:bg-[#0b101d]/90 border border-slate-200 dark:border-slate-800/80 mr-4 sm:mr-12 shadow-sm dark:shadow-xl shadow-slate-200/40 dark:shadow-black/20'
       }`}
     >
       {/* Avatar Icon */}
@@ -67,8 +67,8 @@ export default function ChatMessage({ message, onActionClick, onAddGoal }) {
           </div>
         ) : (
           <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-cyan-400 p-[1px] shadow-lg shadow-indigo-500/20">
-            <div className="w-full h-full bg-[#0b101d] rounded-xl flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-indigo-400" />
+            <div className="w-full h-full bg-white dark:bg-[#0b101d] rounded-xl flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             </div>
           </div>
         )}
@@ -79,11 +79,11 @@ export default function ChatMessage({ message, onActionClick, onAddGoal }) {
         {/* Role & Intent Header */}
         <div className="flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-200">
+            <span className="text-xs font-bold text-slate-800 dark:text-slate-200">
               {isUser ? 'You' : 'LifeOps AI'}
             </span>
             {!isUser && message.mode && (
-              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
                 {message.mode === 'PLAN' ? 'Autonomous Fleet' : message.mode === 'CODE' ? 'Technical Spec' : 'Direct Response'}
               </span>
             )}
@@ -93,7 +93,7 @@ export default function ChatMessage({ message, onActionClick, onAddGoal }) {
           {!isUser && onAddGoal && (
             <button
               onClick={() => onAddGoal(message)}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-300 bg-indigo-600/15 hover:bg-indigo-600 hover:text-white border border-indigo-500/30 hover:border-indigo-500 transition-all cursor-pointer shadow-sm group"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-semibold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-600/15 hover:bg-indigo-600 hover:text-white border border-indigo-200 dark:border-indigo-500/30 hover:border-indigo-500 transition-all cursor-pointer shadow-sm group"
               title="Convert this AI response into a trackable Goal & Roadmap"
             >
               <Target className="w-3.5 h-3.5 group-hover:scale-110 transition-transform" />
@@ -103,8 +103,8 @@ export default function ChatMessage({ message, onActionClick, onAddGoal }) {
         </div>
 
         {/* Markdown Content */}
-        <div className="text-sm text-slate-200 leading-relaxed break-words font-normal">
-          <div className="prose prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-li:my-0.5 prose-hr:my-4 prose-hr:border-slate-800">
+        <div className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed break-words font-normal">
+          <div className="prose dark:prose-invert max-w-none prose-p:my-2 prose-headings:my-3 prose-ul:my-2 prose-li:my-0.5 prose-hr:my-4 prose-hr:border-slate-200 dark:prose-hr:border-slate-800">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               components={{

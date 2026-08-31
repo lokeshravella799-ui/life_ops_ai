@@ -8,10 +8,11 @@ echo           LIFEOPS AI LOCAL AGENT - SETUP WIZARD (v1.0.0)
 echo ================================================================
 echo.
 
-set "SCRIPT_DIR=%~dp0..\"
+set "SCRIPT_DIR=%~dp0"
 set "SERVER_DIR=%SCRIPT_DIR%server"
 set "VENV_DIR=%SERVER_DIR%\.venv"
 set "VENV_PYTHON=%VENV_DIR%\Scripts\python.exe"
+set "VENV_PIP=%VENV_DIR%\Scripts\pip.exe"
 
 echo [1/4] Checking Python environment...
 set "SYS_PYTHON="
@@ -100,15 +101,15 @@ if not exist "%SERVER_DIR%\.env" (
 
 echo.
 echo Running pre-flight environment diagnostics...
-if exist "%~dp0check_environment.py" (
-    "%VENV_PYTHON%" "%~dp0check_environment.py"
+if exist "%SCRIPT_DIR%scripts\check_environment.py" (
+    "%VENV_PYTHON%" "%SCRIPT_DIR%scripts\check_environment.py"
 )
 
 echo.
 echo ================================================================
 echo             SETUP COMPLETE! YOU ARE READY TO RUN                
 echo ================================================================
-echo 1. Double-click "start_server.bat" to run your local server.
+echo 1. Double-click "start.bat" or "start_server.bat" to run your local server.
 echo 2. Open Google Chrome, navigate to chrome://extensions/
 echo 3. Enable "Developer mode" (top-right switch).
 echo 4. Click "Load unpacked" and select the "extension" directory.

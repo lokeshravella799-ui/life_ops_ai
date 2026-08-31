@@ -7,6 +7,9 @@ const activePageDomain = document.getElementById("activePageDomain");
 const refreshContextBtn = document.getElementById("refreshContextBtn");
 const chatHistory = document.getElementById("chatHistory");
 const clearChatBtn = document.getElementById("clearChatBtn");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeSunIcon = document.getElementById("themeSunIcon");
+const themeMoonIcon = document.getElementById("themeMoonIcon");
 const spAnalyzePageBtn = document.getElementById("spAnalyzePageBtn");
 const spSeeScreenBtn = document.getElementById("spSeeScreenBtn");
 const spExplainSimplyBtn = document.getElementById("spExplainSimplyBtn");
@@ -17,10 +20,56 @@ let activeTab = null;
 let conversationHistory = [];
 
 document.addEventListener("DOMContentLoaded", async () => {
+  await initTheme();
   await checkHealth();
   await updateActiveTab();
   setupEvents();
 });
+
+// Theme Management
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+    document.body.classList.add("light-theme");
+    if (themeSunIcon) themeSunIcon.style.display = "none";
+    if (themeMoonIcon) themeMoonIcon.style.display = "block";
+    if (themeToggleBtn) themeToggleBtn.title = "Switch to Dark Mode";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    document.body.classList.remove("light-theme");
+    if (themeSunIcon) themeSunIcon.style.display = "block";
+    if (themeMoonIcon) themeMoonIcon.style.display = "none";
+    if (themeToggleBtn) themeToggleBtn.title = "Switch to Light Mode";
+  }
+}
+
+async function initTheme() {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      const res = await chrome.storage.local.get(["lifeops_theme"]);
+      applyTheme(res.lifeops_theme || "dark");
+    } else {
+      const saved = localStorage.getItem("lifeops_theme") || "dark";
+      applyTheme(saved);
+    }
+  } catch {
+    applyTheme("dark");
+  }
+}
+
+async function toggleTheme() {
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  const newTheme = isLight ? "dark" : "light";
+  applyTheme(newTheme);
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      await chrome.storage.local.set({ lifeops_theme: newTheme });
+    }
+    localStorage.setItem("lifeops_theme", newTheme);
+  } catch (e) {
+    console.warn("Theme save error:", e);
+  }
+}
 
 async function checkHealth() {
   try {
@@ -55,6 +104,10 @@ async function updateActiveTab() {
 }
 
 function setupEvents() {
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", toggleTheme);
+  }
+
   refreshContextBtn.addEventListener("click", () => {
     updateActiveTab();
     checkHealth();

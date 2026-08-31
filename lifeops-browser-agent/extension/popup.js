@@ -21,6 +21,9 @@ const responseContent = document.getElementById("responseContent");
 const copyBtn = document.getElementById("copyBtn");
 const userInput = document.getElementById("userInput");
 const sendBtn = document.getElementById("sendBtn");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
+const themeSunIcon = document.getElementById("themeSunIcon");
+const themeMoonIcon = document.getElementById("themeMoonIcon");
 
 let activeTab = null;
 let cachedPageContent = null;
@@ -28,11 +31,57 @@ let currentRawResponse = "";
 
 // Initialize on Load
 document.addEventListener("DOMContentLoaded", async () => {
+  await initTheme();
   await checkServerHealth();
   await loadActiveTabContext();
   checkPendingSelection();
   setupEventListeners();
 });
+
+// 0. Theme Management
+function applyTheme(theme) {
+  if (theme === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+    document.body.classList.add("light-theme");
+    if (themeSunIcon) themeSunIcon.style.display = "none";
+    if (themeMoonIcon) themeMoonIcon.style.display = "block";
+    if (themeToggleBtn) themeToggleBtn.title = "Switch to Dark Mode";
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+    document.body.classList.remove("light-theme");
+    if (themeSunIcon) themeSunIcon.style.display = "block";
+    if (themeMoonIcon) themeMoonIcon.style.display = "none";
+    if (themeToggleBtn) themeToggleBtn.title = "Switch to Light Mode";
+  }
+}
+
+async function initTheme() {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      const res = await chrome.storage.local.get(["lifeops_theme"]);
+      applyTheme(res.lifeops_theme || "dark");
+    } else {
+      const saved = localStorage.getItem("lifeops_theme") || "dark";
+      applyTheme(saved);
+    }
+  } catch {
+    applyTheme("dark");
+  }
+}
+
+async function toggleTheme() {
+  const isLight = document.documentElement.getAttribute("data-theme") === "light";
+  const newTheme = isLight ? "dark" : "light";
+  applyTheme(newTheme);
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage && chrome.storage.local) {
+      await chrome.storage.local.set({ lifeops_theme: newTheme });
+    }
+    localStorage.setItem("lifeops_theme", newTheme);
+  } catch (e) {
+    console.warn("Theme save error:", e);
+  }
+}
 
 // 1. Health Check
 async function checkServerHealth() {
@@ -86,6 +135,11 @@ function checkPendingSelection() {
 
 // 4. Event Listeners
 function setupEventListeners() {
+  // Theme Toggle
+  if (themeToggleBtn) {
+    themeToggleBtn.addEventListener("click", toggleTheme);
+  }
+
   // Page Analysis
   analyzePageCard.addEventListener("click", () => {
     handlePageAnalysis("Analyze and summarize this page with key takeaways.");

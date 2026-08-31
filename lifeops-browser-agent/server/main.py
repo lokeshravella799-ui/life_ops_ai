@@ -1,8 +1,32 @@
 import os
+import sys
 import time
 import base64
 import logging
+import subprocess
+from pathlib import Path
 from typing import Optional, List, Dict, Any
+
+# ==============================================================================
+# Auto-Environment Bootstrapper
+# If executed with an unconfigured interpreter, seamlessly delegate to .venv
+# ==============================================================================
+_server_dir = Path(__file__).resolve().parent
+_venv_python = _server_dir / ".venv" / ("Scripts" if sys.platform == "win32" else "bin") / ("python.exe" if sys.platform == "win32" else "python")
+
+try:
+    import fastapi
+    import uvicorn
+    import groq
+except ImportError:
+    if _venv_python.exists() and Path(sys.executable).resolve() != _venv_python.resolve():
+        os.execv(str(_venv_python), [str(_venv_python)] + sys.argv)
+    else:
+        req_file = _server_dir / "requirements.txt"
+        if req_file.exists():
+            subprocess.run([sys.executable, "-m", "pip", "install", "-r", str(req_file)], check=True)
+            os.execv(sys.executable, [sys.executable] + sys.argv)
+
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field

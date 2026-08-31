@@ -8,7 +8,7 @@ echo       LIFEOPS AI LOCAL AGENT - COMPANION SERVER (v1.0.0)
 echo ================================================================
 echo.
 
-set "SCRIPT_DIR=%~dp0..\"
+set "SCRIPT_DIR=%~dp0"
 set "SERVER_DIR=%SCRIPT_DIR%server"
 set "VENV_DIR=%SERVER_DIR%\.venv"
 set "VENV_PYTHON=%VENV_DIR%\Scripts\python.exe"
@@ -17,7 +17,7 @@ if not exist "%VENV_PYTHON%" (
     color 0E
     echo [NOTICE] Python virtual environment not found. Running setup first...
     echo.
-    call "%~dp0setup.bat"
+    call "%SCRIPT_DIR%setup.bat"
     if not exist "%VENV_PYTHON%" (
         color 0C
         echo [ERROR] Setup did not complete. Cannot start server.
@@ -35,8 +35,8 @@ if not exist "%SERVER_DIR%\.env" (
 )
 
 echo Pre-flight environment check...
-if exist "%~dp0check_environment.py" (
-    "%VENV_PYTHON%" "%~dp0check_environment.py"
+if exist "%SCRIPT_DIR%scripts\check_environment.py" (
+    "%VENV_PYTHON%" "%SCRIPT_DIR%scripts\check_environment.py"
     if %errorlevel% neq 0 (
         color 0E
         echo.
