@@ -19,7 +19,7 @@ Copy `.env.example` to `.env` and add your Groq API key:
 ```env
 PORT=8765
 HOST=127.0.0.1
-GROQ_API_KEY=gsk_your_key_here
+GROQ_API_KEY=your_groq_api_key_here
 GROQ_MODEL=qwen/qwen3.6-27b
 GROQ_VISION_MODEL=llama-3.2-11b-vision-preview
 ```

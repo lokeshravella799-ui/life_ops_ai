@@ -96,15 +96,14 @@ def test_extraction():
         with zipfile.ZipFile(ZIP_PATH, 'r') as zf:
             zf.extractall(temp_dir)
         
-        extracted_root = os.path.join(temp_dir, "lifeops-ai-chrome-extension")
-        assert os.path.exists(extracted_root), "Extracted root folder missing"
-        assert os.path.exists(os.path.join(extracted_root, "setup.bat")), "setup.bat missing"
-        assert os.path.exists(os.path.join(extracted_root, "start_server.bat")), "start_server.bat missing"
-        assert os.path.exists(os.path.join(extracted_root, "README.md")), "README.md missing"
-        assert os.path.exists(os.path.join(extracted_root, "extension", "manifest.json")), "manifest.json missing"
-        assert os.path.exists(os.path.join(extracted_root, "server", "main.py")), "server/main.py missing"
-        assert os.path.exists(os.path.join(extracted_root, "server", ".env.example")), "server/.env.example missing"
-        assert not os.path.exists(os.path.join(extracted_root, "server", ".env")), "server/.env should NOT exist prior to setup"
+        assert os.path.exists(os.path.join(temp_dir, "setup.bat")), "setup.bat missing"
+        assert os.path.exists(os.path.join(temp_dir, "start_server.bat")), "start_server.bat missing"
+        assert os.path.exists(os.path.join(temp_dir, "README.md")), "README.md missing"
+        assert os.path.exists(os.path.join(temp_dir, "scripts", "check_environment.py")), "scripts/check_environment.py missing"
+        assert os.path.exists(os.path.join(temp_dir, "extension", "manifest.json")), "extension/manifest.json missing"
+        assert os.path.exists(os.path.join(temp_dir, "server", "main.py")), "server/main.py missing"
+        assert os.path.exists(os.path.join(temp_dir, "server", ".env.example")), "server/.env.example missing"
+        assert not os.path.exists(os.path.join(temp_dir, "server", ".env")), "server/.env should NOT exist prior to setup"
         
         print("[PASS] Clean extraction test passed successfully!")
     finally:
@@ -113,3 +112,4 @@ def test_extraction():
 if __name__ == "__main__":
     scan_zip()
     test_extraction()
+

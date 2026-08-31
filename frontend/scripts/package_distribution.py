@@ -337,25 +337,30 @@ def create_distributable_zip():
     
     with zipfile.ZipFile(ZIP_PATH, 'w', zipfile.ZIP_DEFLATED) as zf:
         # Write root files
-        zf.writestr("lifeops-ai-chrome-extension/setup.bat", SETUP_BAT_CONTENT)
-        zf.writestr("lifeops-ai-chrome-extension/start.bat", START_BAT_CONTENT)
-        zf.writestr("lifeops-ai-chrome-extension/start_server.bat", START_SERVER_BAT_CONTENT)
-        zf.writestr("lifeops-ai-chrome-extension/README.md", README_MD_CONTENT)
-        zf.writestr("lifeops-ai-chrome-extension/LICENSE", LICENSE_CONTENT)
+        zf.writestr("setup.bat", SETUP_BAT_CONTENT)
+        zf.writestr("start.bat", START_BAT_CONTENT)
+        zf.writestr("start_server.bat", START_SERVER_BAT_CONTENT)
+        zf.writestr("README.md", README_MD_CONTENT)
+        zf.writestr("LICENSE", LICENSE_CONTENT)
         
         # Write root requirements and .env.example
         root_req = os.path.join(BROWSER_AGENT_DIR, "requirements.txt")
         if os.path.exists(root_req):
-            zf.write(root_req, "lifeops-ai-chrome-extension/requirements.txt")
+            zf.write(root_req, "requirements.txt")
             
         root_env_ex = os.path.join(BROWSER_AGENT_DIR, ".env.example")
         if os.path.exists(root_env_ex):
-            zf.write(root_env_ex, "lifeops-ai-chrome-extension/.env.example")
+            zf.write(root_env_ex, ".env.example")
 
-        # Write scripts
-        diag_script = os.path.join(BROWSER_AGENT_DIR, "scripts", "check_environment.py")
-        if os.path.exists(diag_script):
-            zf.write(diag_script, "lifeops-ai-chrome-extension/scripts/check_environment.py")
+        # Write scripts folder
+        scripts_src = os.path.join(BROWSER_AGENT_DIR, "scripts")
+        if os.path.exists(scripts_src):
+            for file in os.listdir(scripts_src):
+                full_path = os.path.join(scripts_src, file)
+                if os.path.isfile(full_path) and not file.endswith('.pyc'):
+                    zip_entry = f"scripts/{file}".replace("\\", "/")
+                    zf.write(full_path, zip_entry)
+                    print(f"  + Added script file: {zip_entry}")
 
         # Write extension files
         ext_src = os.path.join(BROWSER_AGENT_DIR, "extension")
@@ -366,7 +371,7 @@ def create_distributable_zip():
                     continue
                 full_path = os.path.join(root, file)
                 rel_path = os.path.relpath(full_path, ext_src)
-                zip_entry = f"lifeops-ai-chrome-extension/extension/{rel_path}".replace("\\", "/")
+                zip_entry = f"extension/{rel_path}".replace("\\", "/")
                 zf.write(full_path, zip_entry)
                 print(f"  + Added extension file: {zip_entry}")
 
@@ -379,12 +384,13 @@ def create_distributable_zip():
             "screen_service.py",
             "pdf_service.py",
             "requirements.txt",
-            ".env.example"
+            ".env.example",
+            "README.md"
         ]
         for file in allowed_server_files:
             full_path = os.path.join(srv_src, file)
             if os.path.exists(full_path):
-                zip_entry = f"lifeops-ai-chrome-extension/server/{file}".replace("\\", "/")
+                zip_entry = f"server/{file}".replace("\\", "/")
                 zf.write(full_path, zip_entry)
                 print(f"  + Added server file: {zip_entry}")
 
@@ -392,3 +398,4 @@ def create_distributable_zip():
 
 if __name__ == "__main__":
     create_distributable_zip()
+
