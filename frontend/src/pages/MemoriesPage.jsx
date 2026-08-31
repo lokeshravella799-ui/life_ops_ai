@@ -106,27 +106,27 @@ export default function MemoriesPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Memories & Personalization</h1>
-        <p className="text-xs sm:text-sm text-slate-400 mt-1">
+        <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Memories & Personalization</h1>
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
           LifeOps AI uses your active habits, working windows, and learning preferences to orchestrate tailored plans.
         </p>
       </div>
 
       {/* Global Preference Controls */}
-      <div className="p-6 rounded-3xl bg-[#0d1424]/90 border border-slate-800 space-y-5">
+      <div className="p-6 rounded-3xl bg-white dark:bg-[#0d1424]/90 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-5">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-indigo-500/10 text-indigo-400">
+          <div className="p-2.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/20">
             <Clock className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Core Working & Study Habits</h3>
-            <p className="text-xs text-slate-400">These limits are automatically injected into the Memory Agent for all new goals.</p>
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Core Working & Study Habits</h3>
+            <p className="text-xs text-slate-600 dark:text-slate-400">These limits are automatically injected into the Memory Agent for all new goals.</p>
           </div>
         </div>
 
         <form onSubmit={handleSavePreferences} className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Preferred Study / Working Window
             </label>
             <input
@@ -134,12 +134,12 @@ export default function MemoriesPage() {
               value={preferredStudyTime}
               onChange={(e) => setPreferredStudyTime(e.target.value)}
               placeholder="e.g. Evening (6 PM - 9 PM) or Morning (7 AM - 10 AM)"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Maximum Daily Availability (Hours)
             </label>
             <input
@@ -149,13 +149,13 @@ export default function MemoriesPage() {
               step="0.5"
               value={maxHoursPerDay}
               onChange={(e) => setMaxHoursPerDay(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 font-mono"
+              className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 font-mono"
             />
           </div>
 
           <div className="sm:col-span-2 flex items-center justify-between pt-2">
             {profileSuccess && (
-              <span className="text-xs text-emerald-400 font-medium flex items-center gap-1.5">
+              <span className="text-xs text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4" />
                 Preferences updated successfully!
               </span>
@@ -164,7 +164,7 @@ export default function MemoriesPage() {
               <button
                 type="submit"
                 disabled={saveProfileLoading}
-                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all"
+                className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
               >
                 {saveProfileLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 <span>Save Preferences</span>
@@ -175,9 +175,9 @@ export default function MemoriesPage() {
       </div>
 
       {/* Add Custom Habit / Preference */}
-      <div className="p-6 rounded-3xl bg-[#0d1424]/70 border border-slate-800 space-y-4">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-300 flex items-center gap-2">
-          <Brain className="w-4 h-4 text-purple-400" />
+      <div className="p-6 rounded-3xl bg-white dark:bg-[#0d1424]/70 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
+        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300 flex items-center gap-2">
+          <Brain className="w-4 h-4 text-purple-600 dark:text-purple-400" />
           Add Custom Habit or Constraint
         </h3>
 
@@ -189,7 +189,7 @@ export default function MemoriesPage() {
                 value={newContent}
                 onChange={(e) => setNewContent(e.target.value)}
                 placeholder="e.g. Prefers active coding and diagramming over reading long textbook passages..."
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500"
                 required
               />
             </div>
@@ -199,7 +199,7 @@ export default function MemoriesPage() {
                 value={newKeyTag}
                 onChange={(e) => setNewKeyTag(e.target.value)}
                 placeholder="Key Tag (e.g. learning_style)"
-                className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-purple-500"
+                className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-purple-500"
               />
             </div>
           </div>
@@ -208,7 +208,7 @@ export default function MemoriesPage() {
             <button
               type="submit"
               disabled={addingMemory || !newContent.trim()}
-              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer disabled:opacity-50"
             >
               {addingMemory ? <Loader2 className="w-4 h-4 animate-spin" /> : <PlusCircle className="w-4 h-4" />}
               <span>Save Memory</span>
@@ -219,13 +219,13 @@ export default function MemoriesPage() {
 
       {/* Active Memories List */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+        <h3 className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           Saved Personal Context Items ({memories.length})
         </h3>
 
         {loading && (
           <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-indigo-400" />
+            <Loader2 className="w-6 h-6 animate-spin text-indigo-500" />
           </div>
         )}
 
@@ -237,20 +237,20 @@ export default function MemoriesPage() {
           {memories.map(m => (
             <div
               key={m.id}
-              className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-start justify-between gap-3"
+              className="p-4 rounded-2xl bg-white dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm flex items-start justify-between gap-3"
             >
               <div className="space-y-1">
-                <span className="text-[10px] font-mono font-bold text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-500/20">
+                <span className="text-[10px] font-mono font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-500/10 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-500/20">
                   {m.key_tag || 'preference'}
                 </span>
-                <p className="text-xs text-slate-200 leading-relaxed pt-1">
+                <p className="text-xs text-slate-800 dark:text-slate-200 leading-relaxed pt-1">
                   {m.content}
                 </p>
               </div>
 
               <button
                 onClick={() => handleDeleteMemory(m.id)}
-                className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors flex-shrink-0"
+                className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors flex-shrink-0 cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
               </button>

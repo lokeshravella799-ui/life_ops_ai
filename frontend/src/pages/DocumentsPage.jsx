@@ -155,28 +155,28 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white flex items-center gap-2.5">
-            <FileText className="w-7 h-7 text-indigo-400" />
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white flex items-center gap-2.5">
+            <FileText className="w-7 h-7 text-indigo-600 dark:text-indigo-400" />
             <span>Document AI Extraction & Summaries</span>
           </h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
             Transform documentation briefs, meeting notes, or technical specs into structured executive summaries and roadmap action items.
           </p>
         </div>
 
         <button
           onClick={handleSampleBrief}
-          className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all self-start sm:self-auto cursor-pointer"
+          className="px-3.5 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-sm transition-all self-start sm:self-auto cursor-pointer"
         >
-          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+          <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
           <span>Insert Sample Brief</span>
         </button>
       </div>
 
       {/* Input Form */}
-      <form onSubmit={handleSubmit} className="p-5 sm:p-6 rounded-3xl bg-[#0d1424]/90 border border-slate-800 shadow-xl space-y-4">
+      <form onSubmit={handleSubmit} className="p-5 sm:p-6 rounded-3xl bg-white dark:bg-[#0d1424]/90 border border-slate-200 dark:border-slate-800 shadow-sm dark:shadow-xl space-y-4">
         <div>
-          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
             Document Title
           </label>
           <input
@@ -184,12 +184,12 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
             placeholder="e.g. Python Distributed Systems Architecture Spec..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+            className="w-full px-4 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+          <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-2">
             Document Content / Raw Text
           </label>
           <textarea
@@ -197,7 +197,7 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
             placeholder="Paste technical requirements, project notes, meeting transcripts, or course syllabus here..."
             value={rawContent}
             onChange={(e) => setRawContent(e.target.value)}
-            className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
+            className="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors font-mono"
           />
         </div>
 
@@ -228,14 +228,14 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
 
       {/* Error & Retry Banner */}
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-400" />
+            <AlertTriangle className="w-4 h-4 shrink-0 text-rose-500 dark:text-rose-400" />
             <span>{error}</span>
           </div>
           <button
             onClick={handleSubmit}
-            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-semibold text-xs flex items-center gap-1 cursor-pointer"
+            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-700 dark:text-rose-200 font-semibold text-xs flex items-center gap-1 cursor-pointer"
           >
             <RotateCcw className="w-3 h-3" />
             <span>Retry</span>
@@ -245,13 +245,13 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
 
       {/* Structured AI Extraction Results Card (Requirement 7) */}
       {result && (
-        <div className="p-6 sm:p-7 rounded-3xl bg-gradient-to-br from-[#0d1424] via-[#0b101d] to-[#070b14] border border-indigo-500/30 shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+        <div className="p-6 sm:p-7 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-[#0d1424] dark:via-[#0b101d] dark:to-[#070b14] border border-slate-200 dark:border-indigo-500/30 shadow-md dark:shadow-2xl space-y-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
             <div>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 uppercase tracking-wide">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20 uppercase tracking-wide">
                 AI Extraction Verified
               </span>
-              <h2 className="text-lg sm:text-xl font-bold text-white mt-1">
+              <h2 className="text-lg sm:text-xl font-bold text-slate-900 dark:text-white mt-1">
                 {result.document?.title || title || 'Document Analysis'}
               </h2>
             </div>
@@ -277,12 +277,12 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
           </div>
 
           {/* Executive Summary */}
-          <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-1.5">
-            <h4 className="text-xs font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
+          <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-1.5">
+            <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
               <BookOpen className="w-3.5 h-3.5" />
               <span>Executive Summary</span>
             </h4>
-            <p className="text-xs text-slate-200 leading-relaxed">
+            <p className="text-xs text-slate-700 dark:text-slate-200 leading-relaxed">
               {result.extracted?.summary || 'Executive summary generated.'}
             </p>
           </div>
@@ -290,18 +290,18 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
           {/* Key Points & Important Concepts */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Key Points */}
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-amber-600 dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                 <List className="w-3.5 h-3.5" />
                 <span>Key Points & Takeaways</span>
               </h4>
-              <ul className="space-y-1.5 text-xs text-slate-300">
+              <ul className="space-y-1.5 text-xs text-slate-700 dark:text-slate-300">
                 {(result.extracted?.keyPoints && result.extracted.keyPoints.length > 0
                   ? result.extracted.keyPoints
                   : ['Core requirements decomposed into milestones.', 'System integrity constraints verified.']
                 ).map((point, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-400 mt-1.5 shrink-0" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-1.5 shrink-0" />
                     <span>{point}</span>
                   </li>
                 ))}
@@ -309,8 +309,8 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
             </div>
 
             {/* Important Concepts */}
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Layers className="w-3.5 h-3.5" />
                 <span>Important Concepts & Tech</span>
               </h4>
@@ -321,7 +321,7 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
                 ).map((concept, idx) => (
                   <span
                     key={idx}
-                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-500/10 text-purple-300 border border-purple-500/20"
+                    className="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-500/20"
                   >
                     {concept}
                   </span>
@@ -332,30 +332,30 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
 
           {/* Key Deadlines & Deliverables */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-cyan-700 dark:text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>Key Deadlines & Schedule</span>
               </h4>
-              <ul className="space-y-1 text-xs text-slate-300">
+              <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
                 {(result.extracted?.keyDeadlines || ['Timeline: 14 Days']).map((dl, idx) => (
                   <li key={idx} className="flex items-center gap-2">
-                    <Clock className="w-3 h-3 text-cyan-400 shrink-0" />
+                    <Clock className="w-3 h-3 text-cyan-600 dark:text-cyan-400 shrink-0" />
                     <span>{dl}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="p-4 rounded-2xl bg-slate-900/60 border border-slate-800 space-y-2">
-              <h4 className="text-xs font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+            <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 space-y-2">
+              <h4 className="text-xs font-bold text-emerald-700 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
                 <CheckCircle2 className="w-3.5 h-3.5" />
                 <span>Deliverables</span>
               </h4>
-              <ul className="space-y-1 text-xs text-slate-300">
+              <ul className="space-y-1 text-xs text-slate-700 dark:text-slate-300">
                 {(result.extracted?.deliverables || ['Verified Deliverable Artifacts']).map((del, idx) => (
                   <li key={idx} className="flex items-center gap-2">
-                    <FileCheck className="w-3 h-3 text-emerald-400 shrink-0" />
+                    <FileCheck className="w-3 h-3 text-emerald-600 dark:text-emerald-400 shrink-0" />
                     <span>{del}</span>
                   </li>
                 ))}
@@ -365,28 +365,28 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
 
           {/* Synthesized Action Items */}
           <div className="space-y-3">
-            <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-indigo-400" />
+            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>Synthesized Roadmap Action Items ({(result.extracted?.extractedActionItems || []).length})</span>
             </h4>
             <div className="space-y-2">
               {(result.extracted?.extractedActionItems || []).map((action, aIdx) => (
                 <div
                   key={aIdx}
-                  className="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 flex items-start justify-between gap-3"
+                  className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-start justify-between gap-3"
                 >
                   <div className="space-y-1 min-w-0">
-                    <p className="text-xs font-bold text-white">{action.title}</p>
-                    <p className="text-[11px] text-slate-400">{action.description}</p>
+                    <p className="text-xs font-bold text-slate-900 dark:text-white">{action.title}</p>
+                    <p className="text-[11px] text-slate-600 dark:text-slate-400">{action.description}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className="text-[10px] font-mono text-slate-400">
+                    <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
                       {action.estimatedHours || 2}h
                     </span>
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded uppercase ${
                       action.priority === 'HIGH' || action.priority === 'URGENT'
-                        ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                        : 'bg-indigo-500/15 text-indigo-300 border border-indigo-500/30'
+                        ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
+                        : 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30'
                     }`}>
                       {action.priority || 'MEDIUM'}
                     </span>
@@ -401,21 +401,21 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
       {/* Saved Documents Catalog */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-            <FileText className="w-4 h-4 text-indigo-400" />
+          <h3 className="text-sm font-bold text-slate-800 dark:text-slate-300 uppercase tracking-wider flex items-center gap-2">
+            <FileText className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Saved Documents History ({savedDocs.length})</span>
           </h3>
         </div>
 
         {loadingDocs && (
-          <div className="flex items-center gap-2 text-xs text-slate-400 py-4">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-400" />
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 py-4">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-500" />
             <span>Loading saved documents...</span>
           </div>
         )}
 
         {!loadingDocs && savedDocs.length === 0 && (
-          <div className="p-6 rounded-2xl bg-slate-900/30 border border-slate-800 text-center text-xs text-slate-400">
+          <div className="p-6 rounded-2xl bg-white dark:bg-slate-900/30 border border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
             No saved documents yet. Enter a brief above to process and extract deliverables.
           </div>
         )}
@@ -429,29 +429,29 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
               return (
                 <div
                   key={doc.id}
-                  className="rounded-2xl bg-[#0d1424]/80 border border-slate-800 overflow-hidden"
+                  className="rounded-2xl bg-white dark:bg-[#0d1424]/80 border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden"
                 >
                   <div
                     onClick={() => setExpandedDocId(isExpanded ? null : doc.id)}
-                    className="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-800/40 transition-colors"
+                    className="p-4 flex items-center justify-between gap-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <FileCheck className="w-5 h-5 text-indigo-400 shrink-0" />
+                      <FileCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
                       <div className="min-w-0">
-                        <h4 className="text-xs font-bold text-white truncate">{doc.title}</h4>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">
+                        <h4 className="text-xs font-bold text-slate-900 dark:text-white truncate">{doc.title}</h4>
+                        <p className="text-[10px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {doc.summary || doc.content?.slice(0, 80) || 'Processed document'}
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
-                      <span className="text-[10px] font-mono text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded">
+                      <span className="text-[10px] font-mono text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-200 dark:border-indigo-500/20">
                         {actionsCount} Actions
                       </span>
                       <button
                         onClick={(e) => handleDeleteDocument(doc.id, e)}
-                        className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                        className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                         title="Delete Document"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -463,22 +463,22 @@ Design and implement a fault-tolerant microservices backend with asynchronous ev
                   </div>
 
                   {isExpanded && (
-                    <div className="p-4 bg-slate-950/70 border-t border-slate-800 space-y-3 text-xs">
+                    <div className="p-4 bg-slate-50 dark:bg-slate-950/70 border-t border-slate-200 dark:border-slate-800 space-y-3 text-xs">
                       <div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                        <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                           Full Summary
                         </span>
-                        <p className="text-slate-200 leading-relaxed">
+                        <p className="text-slate-800 dark:text-slate-200 leading-relaxed">
                           {doc.summary || 'Summary unavailable.'}
                         </p>
                       </div>
 
                       {doc.content && (
                         <div>
-                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">
+                          <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase block mb-1">
                             Original Brief Excerpt
                           </span>
-                          <p className="text-slate-400 text-[11px] font-mono whitespace-pre-wrap max-h-36 overflow-y-auto bg-slate-900 p-2.5 rounded-xl">
+                          <p className="text-slate-700 dark:text-slate-400 text-[11px] font-mono whitespace-pre-wrap max-h-36 overflow-y-auto bg-slate-100 dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800">
                             {doc.content}
                           </p>
                         </div>

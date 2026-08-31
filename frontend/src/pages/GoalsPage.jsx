@@ -158,8 +158,8 @@ export default function GoalsPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-white">Goals & Roadmaps</h1>
-          <p className="text-xs sm:text-sm text-slate-400 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Goals & Roadmaps</h1>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400 mt-1">
             Track objectives, generate multi-agent workflows, and view real-time task progress.
           </p>
         </div>
@@ -167,9 +167,9 @@ export default function GoalsPage() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => navigate('/tasks')}
-            className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
+            className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-sm transition-all cursor-pointer"
           >
-            <Layers className="w-4 h-4 text-indigo-400" />
+            <Layers className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             <span>Open Unified Roadmap</span>
           </button>
           <button
@@ -186,7 +186,7 @@ export default function GoalsPage() {
               });
               setIsModalOpen(true);
             }}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
+            className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer"
           >
             <PlusCircle className="w-4 h-4" />
             <span>New Goal</span>
@@ -195,18 +195,18 @@ export default function GoalsPage() {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-[#0d1424]/80 border border-slate-800">
-        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-slate-900/90 rounded-xl px-3 py-2 border border-slate-800">
-          <Search className="w-4 h-4 text-slate-400" />
+      <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 rounded-2xl bg-white dark:bg-[#0d1424]/80 border border-slate-200 dark:border-slate-800 shadow-sm">
+        <div className="flex items-center gap-2 flex-1 min-w-[200px] bg-slate-50 dark:bg-slate-900/90 rounded-xl px-3 py-2 border border-slate-200 dark:border-slate-800">
+          <Search className="w-4 h-4 text-slate-400 dark:text-slate-500" />
           <input
             type="text"
             placeholder="Search goals..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none w-full"
+            className="bg-transparent text-xs text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none w-full"
           />
           {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-white text-xs">
+            <button onClick={() => setSearchQuery('')} className="text-slate-400 hover:text-slate-700 dark:hover:text-white text-xs">
               <X className="w-3.5 h-3.5" />
             </button>
           )}
@@ -216,7 +216,7 @@ export default function GoalsPage() {
           <select
             value={categoryFilter}
             onChange={(e) => setCategoryFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
             <option value="ALL">All Categories</option>
             <option value="CAREER">Career & Tech</option>
@@ -229,7 +229,7 @@ export default function GoalsPage() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="px-3 py-2 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
+            className="px-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs text-slate-700 dark:text-slate-300 focus:outline-none focus:border-indigo-500 cursor-pointer"
           >
             <option value="ALL">All Priorities</option>
             <option value="HIGH">High Priority</option>
@@ -242,28 +242,28 @@ export default function GoalsPage() {
       {/* Loading & Error States */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-16 space-y-3">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-400" />
-          <p className="text-xs text-slate-400">Loading your goals and roadmaps...</p>
+          <Loader2 className="w-7 h-7 animate-spin text-indigo-500" />
+          <p className="text-xs text-slate-500 dark:text-slate-400">Loading your goals and roadmaps...</p>
         </div>
       )}
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs">
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs">
           {error}
         </div>
       )}
 
       {/* Empty State */}
       {!loading && filteredGoals.length === 0 && (
-        <div className="p-12 text-center rounded-3xl bg-slate-900/40 border border-slate-800/80 space-y-5">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
+        <div className="p-12 text-center rounded-3xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800/80 shadow-sm space-y-5">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
             <Target className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">
               {goals.length === 0 ? 'No Goals Created Yet' : 'No Goals Matching Filters'}
             </h3>
-            <p className="text-xs text-slate-400 max-w-sm mx-auto mt-1">
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto mt-1">
               {goals.length === 0
                 ? 'Add a goal manually or ask LifeOps AI to synthesize an autonomous multi-day roadmap.'
                 : 'Try adjusting your search query or filters above.'}
@@ -280,9 +280,9 @@ export default function GoalsPage() {
               </button>
               <button
                 onClick={() => navigate('/')}
-                className="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold inline-flex items-center gap-2 transition-all border border-slate-700 cursor-pointer"
+                className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold inline-flex items-center gap-2 transition-all border border-slate-200 dark:border-slate-700 cursor-pointer"
               >
-                <Sparkles className="w-4 h-4 text-purple-400" />
+                <Sparkles className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                 <span>Ask AI in Chat</span>
               </button>
             </div>
@@ -301,21 +301,21 @@ export default function GoalsPage() {
             <div
               key={goal.id}
               onClick={() => navigate(`/goals/${goal.id}`)}
-              className="p-5 rounded-2xl bg-[#0d1424]/90 border border-slate-800/80 hover:border-indigo-500/40 hover:shadow-xl hover:shadow-indigo-950/30 transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 group"
+              className="p-5 rounded-2xl bg-white dark:bg-[#0d1424]/90 border border-slate-200 dark:border-slate-800/80 hover:border-indigo-400 dark:hover:border-indigo-500/40 shadow-sm dark:shadow-md hover:shadow-lg dark:hover:shadow-indigo-950/30 transition-all duration-200 cursor-pointer flex flex-col justify-between space-y-4 group"
             >
               <div className="space-y-3">
                 {/* Badges & Actions */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
                       {goal.category || 'PERSONAL'}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                       goal.priority === 'HIGH' || goal.priority === 'URGENT'
-                        ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
+                        ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
                         : goal.priority === 'LOW'
-                        ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                        : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30'
+                        : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30'
                     }`}>
                       {goal.priority || 'MEDIUM'}
                     </span>
@@ -325,14 +325,14 @@ export default function GoalsPage() {
                     <button
                       onClick={(e) => handleOpenEdit(goal, e)}
                       title="Edit Goal"
-                      className="p-1 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition-colors cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 rounded-lg transition-colors cursor-pointer"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={(e) => handleDeleteGoal(goal.id, e)}
                       title="Delete Goal"
-                      className="p-1 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -341,27 +341,27 @@ export default function GoalsPage() {
 
                 {/* Title & Description */}
                 <div className="space-y-1">
-                  <h3 className="text-sm font-bold text-white group-hover:text-indigo-300 transition-colors line-clamp-2">
+                  <h3 className="text-sm font-bold text-slate-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition-colors line-clamp-2">
                     {goal.title}
                   </h3>
-                  <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+                  <p className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2 leading-relaxed">
                     {goal.description || 'Autonomous goal managed by LifeOps AI.'}
                   </p>
                 </div>
               </div>
 
               {/* Progress & Footer */}
-              <div className="space-y-3 pt-3 border-t border-slate-800/60">
+              <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800/60">
                 {/* Progress bar */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-[11px]">
-                    <span className="text-slate-400 flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-400" />
+                    <span className="text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                       <span>{completedTasks}/{totalTasks} tasks</span>
                     </span>
-                    <span className="font-semibold text-indigo-300 font-mono">{progressPercentage}%</span>
+                    <span className="font-semibold text-indigo-600 dark:text-indigo-300 font-mono">{progressPercentage}%</span>
                   </div>
-                  <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                  <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                     <div
                       className="h-full rounded-full bg-gradient-to-r from-indigo-500 to-emerald-400 transition-all duration-300"
                       style={{ width: `${progressPercentage}%` }}
@@ -370,12 +370,12 @@ export default function GoalsPage() {
                 </div>
 
                 {/* Meta details */}
-                <div className="flex items-center justify-between text-xs text-slate-400">
+                <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
                   <span className="flex items-center gap-1 text-[11px]">
-                    <Calendar className="w-3 h-3 text-slate-500" />
+                    <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-500" />
                     <span>{goal.target_days ? `${goal.target_days} Days Plan` : 'Active'}</span>
                   </span>
-                  <span className="text-indigo-400 font-semibold flex items-center gap-1 text-xs group-hover:translate-x-1 transition-transform">
+                  <span className="text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1 text-xs group-hover:translate-x-1 transition-transform">
                     <span>Roadmap</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>
@@ -388,26 +388,26 @@ export default function GoalsPage() {
 
       {/* Create / Edit Goal Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0E121E] border border-white/[0.08] rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#0E121E] border border-slate-200 dark:border-white/[0.08] rounded-3xl max-w-lg w-full p-6 space-y-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-white/[0.06] pb-4">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-white/[0.06] pb-4">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <Target className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
                     {editingGoal ? 'Edit Goal' : 'Create New Goal'}
                   </h3>
-                  <p className="text-xs text-slate-400">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {editingGoal ? 'Modify goal parameters & priority' : 'Set your timeline, category, and objective'}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/50 cursor-pointer"
+                className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800/50 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -416,7 +416,7 @@ export default function GoalsPage() {
             {/* Modal Form */}
             <form onSubmit={handleCreateOrUpdateGoal} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Goal Title *
                 </label>
                 <input
@@ -425,19 +425,19 @@ export default function GoalsPage() {
                   placeholder="e.g. Master Machine Learning Fundamentals"
                   value={goalForm.title}
                   onChange={(e) => setGoalForm({ ...goalForm, title: e.target.value })}
-                  className="w-full bg-[#151A27] text-slate-100 placeholder-slate-500 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60"
+                  className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Category
                   </label>
                   <select
                     value={goalForm.category}
                     onChange={(e) => setGoalForm({ ...goalForm, category: e.target.value })}
-                    className="w-full bg-[#151A27] text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60 cursor-pointer"
+                    className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
                     <option value="CAREER">Career & Tech</option>
                     <option value="STUDY">Study & Exams</option>
@@ -449,13 +449,13 @@ export default function GoalsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Priority
                   </label>
                   <select
                     value={goalForm.priority}
                     onChange={(e) => setGoalForm({ ...goalForm, priority: e.target.value })}
-                    className="w-full bg-[#151A27] text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60 cursor-pointer"
+                    className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500 cursor-pointer"
                   >
                     <option value="HIGH">🔴 High Priority</option>
                     <option value="MEDIUM">🟡 Medium Priority</option>
@@ -467,7 +467,7 @@ export default function GoalsPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Timeline (Days)
                   </label>
                   <input
@@ -476,12 +476,12 @@ export default function GoalsPage() {
                     max={365}
                     value={goalForm.targetDays}
                     onChange={(e) => setGoalForm({ ...goalForm, targetDays: Number(e.target.value) })}
-                    className="w-full bg-[#151A27] text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60"
+                    className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                     Daily Time (Hours/day)
                   </label>
                   <input
@@ -491,13 +491,13 @@ export default function GoalsPage() {
                     step={0.5}
                     value={goalForm.dailyHours}
                     onChange={(e) => setGoalForm({ ...goalForm, dailyHours: Number(e.target.value) })}
-                    className="w-full bg-[#151A27] text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60"
+                    className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
                   Description / Specific Requirements
                 </label>
                 <textarea
@@ -505,7 +505,7 @@ export default function GoalsPage() {
                   placeholder="Optional details, target milestones, or constraints..."
                   value={goalForm.description}
                   onChange={(e) => setGoalForm({ ...goalForm, description: e.target.value })}
-                  className="w-full bg-[#151A27] text-slate-100 placeholder-slate-500 text-xs rounded-xl px-3.5 py-2.5 border border-white/[0.06] focus:outline-none focus:border-indigo-500/60 resize-none"
+                  className="w-full bg-slate-50 dark:bg-[#151A27] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-xs rounded-xl px-3.5 py-2.5 border border-slate-200 dark:border-white/[0.06] focus:outline-none focus:border-indigo-500 resize-none"
                 />
               </div>
 
@@ -516,20 +516,20 @@ export default function GoalsPage() {
                     id="autoOrchestrate"
                     checked={goalForm.autoOrchestrate}
                     onChange={(e) => setGoalForm({ ...goalForm, autoOrchestrate: e.target.checked })}
-                    className="rounded bg-slate-900 border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer"
+                    className="rounded bg-slate-100 dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-indigo-600 focus:ring-0 cursor-pointer"
                   />
-                  <label htmlFor="autoOrchestrate" className="text-xs text-slate-300 cursor-pointer">
+                  <label htmlFor="autoOrchestrate" className="text-xs text-slate-700 dark:text-slate-300 cursor-pointer">
                     Automatically generate AI multi-agent workflow & tasks
                   </label>
                 </div>
               )}
 
               {/* Action Buttons */}
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/[0.06]">
+              <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-200 dark:border-white/[0.06]">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
+                  className="px-4 py-2 text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>
@@ -540,12 +540,12 @@ export default function GoalsPage() {
                   className="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/30 transition-all cursor-pointer disabled:opacity-50"
                 >
                   {isSubmitting ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
                     <>
-                      <Check className="w-4 h-4" />
-                      <span>{editingGoal ? 'Update Goal' : 'Save Goal'}</span>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Saving...</span>
                     </>
+                  ) : (
+                    <span>{editingGoal ? 'Save Changes' : 'Create Goal'}</span>
                   )}
                 </button>
               </div>

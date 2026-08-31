@@ -246,7 +246,7 @@ export default function WorkflowDetailPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <button
           onClick={() => navigate('/goals')}
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-slate-200 cursor-pointer"
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>All Goals</span>
@@ -284,24 +284,24 @@ export default function WorkflowDetailPage() {
       </div>
 
       {/* Goal & Workflow Header Hero Card */}
-      <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#111728] via-[#0E121E] to-[#0A0D14] border border-indigo-500/20 shadow-2xl relative overflow-hidden space-y-6">
+      <div className="p-6 sm:p-8 rounded-3xl bg-white dark:bg-gradient-to-br dark:from-[#111728] dark:via-[#0E121E] dark:to-[#0A0D14] border border-slate-200 dark:border-indigo-500/20 shadow-md dark:shadow-2xl relative overflow-hidden space-y-6">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2.5">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-500/15 text-indigo-300 border border-indigo-500/30">
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-500/30">
               {goal?.category || 'PERSONAL'}
             </span>
             <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase ${
               goal?.priority === 'HIGH' || goal?.priority === 'URGENT'
-                ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                : 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
+                : 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-500/30'
             }`}>
               {goal?.priority || 'MEDIUM'} Priority
             </span>
             {workflow?.verification_status && (
               <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${
                 workflow.verification_status === 'VERIFIED'
-                  ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
-                  : 'bg-amber-500/10 text-amber-300 border-amber-500/30'
+                  ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30'
+                  : 'bg-amber-50 dark:bg-amber-500/10 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
               }`}>
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>{workflow.verification_status}</span>
@@ -309,28 +309,28 @@ export default function WorkflowDetailPage() {
             )}
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
             {goal?.title || workflow?.title}
           </h1>
 
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-3xl">
+          <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 leading-relaxed max-w-3xl">
             {goal?.description || workflow?.summary}
           </p>
         </div>
 
         {/* Real-time Progress Bar */}
-        <div className="p-4 rounded-2xl bg-slate-900/80 border border-slate-800 space-y-2">
+        <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 space-y-2">
           <div className="flex items-center justify-between text-xs">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-              <span className="text-slate-300 font-semibold">
+              <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-slate-800 dark:text-slate-300 font-semibold">
                 Execution Progress: {completedTasks} of {totalTasks} tasks completed
               </span>
             </div>
-            <span className="font-mono font-bold text-emerald-400">{completionPercentage}%</span>
+            <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">{completionPercentage}%</span>
           </div>
 
-          <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+          <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
             <div
               className="h-full rounded-full bg-gradient-to-r from-indigo-500 via-purple-500 to-emerald-400 transition-all duration-500"
               style={{ width: `${completionPercentage}%` }}
@@ -341,7 +341,7 @@ export default function WorkflowDetailPage() {
 
       {/* Generation Error Alert */}
       {generationError && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-300 text-xs flex items-center justify-between gap-3">
           <span>{generationError}</span>
           <button
             onClick={handleGenerateWorkflow}
@@ -354,13 +354,13 @@ export default function WorkflowDetailPage() {
 
       {/* No Workflow State */}
       {!workflow && tasks.length === 0 && (
-        <div className="p-10 rounded-3xl bg-slate-900/40 border border-slate-800 text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mx-auto">
+        <div className="p-10 rounded-3xl bg-white dark:bg-slate-900/40 border border-slate-200 dark:border-slate-800 text-center shadow-sm space-y-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/10 border border-indigo-200 dark:border-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-white">Synthesize Multi-Agent Roadmap</h3>
-            <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white">Synthesize Multi-Agent Roadmap</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
               Activate LifeOps AI orchestrator, research agent, scheduler, and verifier to generate a complete step-by-step milestone roadmap.
             </p>
           </div>
@@ -389,7 +389,7 @@ export default function WorkflowDetailPage() {
         <div className="space-y-4">
           <button
             onClick={() => setShowAgentTraces(!showAgentTraces)}
-            className="flex items-center gap-2 text-xs font-semibold text-indigo-400 hover:text-indigo-300 cursor-pointer"
+            className="flex items-center gap-2 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer"
           >
             <Layers className="w-4 h-4" />
             <span>{showAgentTraces ? 'Hide Multi-Agent Execution Traces' : `View Multi-Agent Traces (${agents.length} Agents Executed)`}</span>
@@ -397,7 +397,7 @@ export default function WorkflowDetailPage() {
           </button>
 
           {showAgentTraces && (
-            <div className="p-4 rounded-2xl bg-[#0d1424] border border-slate-800">
+            <div className="p-4 rounded-2xl bg-white dark:bg-[#0d1424] border border-slate-200 dark:border-slate-800 shadow-sm">
               <AgentVisualizer agents={agents} workflowId={workflow?.id} />
             </div>
           )}
@@ -407,7 +407,7 @@ export default function WorkflowDetailPage() {
       {/* Generated Artifacts */}
       {artifacts.length > 0 && (
         <div className="space-y-3">
-          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <h3 className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-wider">
             Verified Execution Blueprint
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
@@ -423,18 +423,18 @@ export default function WorkflowDetailPage() {
                       console.error('Download error:', err);
                     }
                   }}
-                  className="p-3.5 rounded-2xl bg-slate-900/90 border border-indigo-500/30 hover:border-indigo-500 hover:bg-indigo-500/10 transition-all flex items-center justify-between group cursor-pointer text-left w-full shadow-lg"
+                  className="p-3.5 rounded-2xl bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/30 hover:border-indigo-400 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-500/10 transition-all flex items-center justify-between group cursor-pointer text-left w-full shadow-sm dark:shadow-lg"
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-500/20 text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                       <FileText className="w-4 h-4" />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-xs font-bold text-white truncate">{art.name || art.filename}</p>
-                      <p className="text-[10px] text-indigo-300 uppercase font-mono">{art.artifact_type || 'PDF'} • {Math.round((art.file_size_bytes || 2048) / 1024)} KB</p>
+                      <p className="text-xs font-bold text-slate-900 dark:text-white truncate">{art.name || art.filename}</p>
+                      <p className="text-[10px] text-indigo-600 dark:text-indigo-300 uppercase font-mono">{art.artifact_type || 'PDF'} • {Math.round((art.file_size_bytes || 2048) / 1024)} KB</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 text-xs font-semibold text-indigo-400 group-hover:text-indigo-300 shrink-0 ml-2">
+                  <div className="flex items-center gap-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 group-hover:text-indigo-700 dark:group-hover:text-indigo-300 shrink-0 ml-2">
                     <span>Download</span>
                     <Download className="w-3.5 h-3.5" />
                   </div>
@@ -448,14 +448,14 @@ export default function WorkflowDetailPage() {
       {(tasks.length > 0 || workflow) && (
         <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-white flex items-center gap-2">
-              <Target className="w-4 h-4 text-indigo-400" />
+            <h2 className="text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+              <Target className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
               <span>Milestone Execution Roadmap</span>
             </h2>
 
             <button
               onClick={() => setIsAddingTask(!isAddingTask)}
-              className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition-all cursor-pointer"
+              className="px-3 py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white text-xs font-semibold flex items-center gap-1.5 border border-slate-200 dark:border-slate-700 shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Task</span>
@@ -464,22 +464,22 @@ export default function WorkflowDetailPage() {
 
           {/* Add Task Form */}
           {isAddingTask && (
-            <form onSubmit={handleCreateTask} className="p-4 rounded-2xl bg-slate-900/90 border border-indigo-500/30 space-y-3 animate-in fade-in zoom-in-95 duration-200">
-              <h4 className="text-xs font-bold text-white">Add Custom Task to Roadmap</h4>
+            <form onSubmit={handleCreateTask} className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-indigo-200 dark:border-indigo-500/30 space-y-3 animate-in fade-in zoom-in-95 duration-200">
+              <h4 className="text-xs font-bold text-slate-900 dark:text-white">Add Custom Task to Roadmap</h4>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <input
                   type="text"
                   placeholder="Task title..."
                   value={newTaskTitle}
                   onChange={(e) => setNewTaskTitle(e.target.value)}
-                  className="sm:col-span-2 px-3 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-indigo-500"
+                  className="sm:col-span-2 px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-indigo-500"
                   required
                 />
                 <div className="grid grid-cols-2 gap-2">
                   <select
                     value={newTaskDay}
                     onChange={(e) => setNewTaskDay(Number(e.target.value))}
-                    className="px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none"
+                    className="px-2.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 14, 21, 30].map(d => (
                       <option key={d} value={d}>Day {d}</option>
@@ -488,7 +488,7 @@ export default function WorkflowDetailPage() {
                   <select
                     value={newTaskPriority}
                     onChange={(e) => setNewTaskPriority(e.target.value)}
-                    className="px-2.5 py-2 rounded-xl bg-slate-950 border border-slate-700 text-xs text-white focus:outline-none"
+                    className="px-2.5 py-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 text-xs text-slate-900 dark:text-white focus:outline-none"
                   >
                     <option value="HIGH">High</option>
                     <option value="MEDIUM">Medium</option>
@@ -500,7 +500,7 @@ export default function WorkflowDetailPage() {
                 <button
                   type="button"
                   onClick={() => setIsAddingTask(false)}
-                  className="px-3 py-1.5 text-xs text-slate-400 hover:text-white"
+                  className="px-3 py-1.5 text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-white"
                 >
                   Cancel
                 </button>
@@ -527,20 +527,20 @@ export default function WorkflowDetailPage() {
                 return (
                   <div
                     key={dayNum}
-                    className="rounded-2xl bg-[#0d1424]/90 border border-slate-800/80 overflow-hidden shadow-lg"
+                    className="rounded-2xl bg-white dark:bg-[#0d1424]/90 border border-slate-200 dark:border-slate-800/80 shadow-sm dark:shadow-lg overflow-hidden"
                   >
                     {/* Day Accordion Header */}
                     <button
                       onClick={() => toggleDayAccordion(dayNum)}
-                      className="w-full px-5 py-3.5 bg-slate-900/60 hover:bg-slate-900/90 flex items-center justify-between transition-colors cursor-pointer text-left"
+                      className="w-full px-5 py-3.5 bg-slate-50 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-900/90 flex items-center justify-between transition-colors cursor-pointer text-left"
                     >
                       <div className="flex items-center gap-3">
-                        <span className="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-400 text-xs font-mono font-bold flex items-center justify-center">
+                        <span className="w-7 h-7 rounded-lg bg-indigo-50 dark:bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 text-xs font-mono font-bold flex items-center justify-center border border-indigo-200 dark:border-indigo-500/20">
                           D{dayNum}
                         </span>
                         <div>
-                          <span className="text-xs font-bold text-white">Day {dayNum} Milestone</span>
-                          <span className="text-[11px] text-slate-400 ml-2">
+                          <span className="text-xs font-bold text-slate-900 dark:text-white">Day {dayNum} Milestone</span>
+                          <span className="text-[11px] text-slate-500 dark:text-slate-400 ml-2">
                             ({dayCompleted}/{dayTasks.length} tasks completed)
                           </span>
                         </div>
@@ -548,7 +548,7 @@ export default function WorkflowDetailPage() {
 
                       <div className="flex items-center gap-2">
                         {dayCompleted === dayTasks.length && dayTasks.length > 0 && (
-                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
                             Completed
                           </span>
                         )}
@@ -558,7 +558,7 @@ export default function WorkflowDetailPage() {
 
                     {/* Day Tasks List */}
                     {isExpanded && (
-                      <div className="p-4 space-y-2.5 border-t border-slate-800/60 divide-y divide-slate-800/30">
+                      <div className="p-4 space-y-2.5 border-t border-slate-100 dark:border-slate-800/60 divide-y divide-slate-100 dark:divide-slate-800/30">
                         {dayTasks.map(task => {
                           const isDone = task.status === 'COMPLETED';
                           return (
@@ -569,21 +569,21 @@ export default function WorkflowDetailPage() {
                               <div className="flex items-start gap-3 min-w-0">
                                 <button
                                   onClick={() => handleToggleTask(task.id, task.status)}
-                                  className="mt-0.5 text-slate-400 hover:text-indigo-400 transition-colors cursor-pointer shrink-0"
+                                  className="mt-0.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors cursor-pointer shrink-0"
                                 >
                                   {isDone ? (
-                                    <CheckSquare className="w-4 h-4 text-emerald-400" />
+                                    <CheckSquare className="w-4 h-4 text-emerald-500" />
                                   ) : (
-                                    <Square className="w-4 h-4 text-slate-500" />
+                                    <Square className="w-4 h-4 text-slate-400" />
                                   )}
                                 </button>
 
                                 <div className="space-y-0.5 min-w-0">
-                                  <p className={`text-xs font-semibold leading-relaxed ${isDone ? 'line-through text-slate-500' : 'text-slate-200'}`}>
+                                  <p className={`text-xs font-semibold leading-relaxed ${isDone ? 'line-through text-slate-400 dark:text-slate-500' : 'text-slate-800 dark:text-slate-200'}`}>
                                     {task.title}
                                   </p>
                                   {task.description && (
-                                    <p className="text-[11px] text-slate-400 leading-relaxed">
+                                    <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
                                       {task.description}
                                     </p>
                                   )}
@@ -593,14 +593,14 @@ export default function WorkflowDetailPage() {
                               <div className="flex items-center gap-2 shrink-0">
                                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md uppercase ${
                                   task.priority === 'URGENT' || task.priority === 'HIGH'
-                                    ? 'bg-rose-500/15 text-rose-300 border border-rose-500/30'
-                                    : 'bg-slate-800 text-slate-400'
+                                    ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30'
+                                    : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                                 }`}>
                                   {task.priority || 'MEDIUM'}
                                 </span>
                                 <button
                                   onClick={() => handleDeleteTask(task.id)}
-                                  className="p-1 text-slate-600 hover:text-rose-400 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
+                                  className="p-1 text-slate-400 hover:text-rose-500 transition-colors opacity-0 group-hover:opacity-100 cursor-pointer"
                                   title="Delete Task"
                                 >
                                   <Trash2 className="w-3.5 h-3.5" />
